@@ -41,6 +41,186 @@ const repos: Repo[] = [
     labels: ["bug", "docs", "affects_*"],
   },
   {
+    fullName: "ansible/awx",
+    company: "Red Hat / Ansible Automation Platform upstream",
+    domain: "automation platform / web app",
+    language: "Python, Django, React",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Very relevant to your stack and directly Red Hat-adjacent. It maps to enterprise backend, REST APIs, RBAC, task execution, and UI work.",
+    caution:
+      "AWX has been in a large refactor and releases were paused. Contribute only after reading current forum/repo direction; otherwise you can spend months on dead-end areas.",
+    labels: ["community", "needs_triage", "type:bug"],
+  },
+  {
+    fullName: "ansible/django-ansible-base",
+    company: "Red Hat / Ansible",
+    domain: "Django platform foundation",
+    language: "Python, Django",
+    signal: "Excellent",
+    difficulty: "Medium",
+    fit: "Probably the sharpest Red Hat fit for your current stack: Django, RBAC, resource registry, API foundations, and smaller surface area than AWX.",
+    caution:
+      "Small repo does not mean easy. You need clean tests and careful compatibility work because downstream Ansible platform code depends on it.",
+    labels: ["bug", "help wanted", "good first issue"],
+  },
+  {
+    fullName: "ansible/ansible-lint",
+    company: "Red Hat / Ansible",
+    domain: "developer tooling / automation quality",
+    language: "Python",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good entry point if you want faster review cycles and Python-only tooling work before moving into larger Red Hat platform repos.",
+    caution:
+      "Lint-rule changes are deceptively political. False positives and backwards compatibility matter more than clever code.",
+    labels: ["bug", "help wanted", "good first issue"],
+  },
+  {
+    fullName: "getsentry/sentry",
+    company: "Sentry",
+    domain: "observability / error tracking",
+    language: "Python, Django, TypeScript, React",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "One of the best matches for Python + Django + React. Contributions here are directly legible to product engineering teams.",
+    caution:
+      "Huge codebase and many issues are product-owned. Pick narrow bugs with reproduction steps; random feature requests are weak signal.",
+    labels: ["Bug", "Product Area:*", "javascript"],
+  },
+  {
+    fullName: "zulip/zulip",
+    company: "Zulip",
+    domain: "collaboration / chat",
+    language: "Python, Django, TypeScript, React Native",
+    signal: "Excellent",
+    difficulty: "Medium",
+    fit: "Best training-ground repo in this list: serious Django app, strong contributor docs, lots of open issues, and visible maintainer review.",
+    caution:
+      "Because they onboard many contributors, low-effort PRs will not distinguish you. Aim for repeated ownership of one feature area.",
+    labels: ["good first issue", "help wanted", "area:*"],
+  },
+  {
+    fullName: "saleor/saleor",
+    company: "Saleor Commerce",
+    domain: "headless commerce / GraphQL API",
+    language: "Python, Django, GraphQL",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Excellent if you want backend product work: Django, GraphQL, permissions, checkout, payments, async integrations.",
+    caution:
+      "Commerce bugs require domain precision. Do not touch payments/tax/inventory logic without tests and a very clear reproduction.",
+    labels: ["Good first issue", "Help wanted", "bug", "triage"],
+  },
+  {
+    fullName: "saleor/storefront",
+    company: "Saleor Commerce",
+    domain: "commerce frontend",
+    language: "React, Next.js, TypeScript, GraphQL",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good React/Next target tied to a real open-source company and a backend you can also learn through Saleor core.",
+    caution:
+      "Frontend-only storefront polish is weaker than fixing typed GraphQL/data-flow bugs across API and UI.",
+    labels: ["bug", "good first issue", "help wanted"],
+  },
+  {
+    fullName: "wagtail/wagtail",
+    company: "Torchbox-backed Wagtail ecosystem",
+    domain: "Django CMS",
+    language: "Python, Django, JavaScript",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Very good Django credibility repo. It is mature, widely used, and has clear component labels.",
+    caution:
+      "CMS/admin UX changes need backwards compatibility and accessibility discipline. Avoid drive-by UI changes.",
+    labels: ["good first issue", "type:Bug", "component:Django"],
+  },
+  {
+    fullName: "netbox-community/netbox",
+    company: "NetBox Labs",
+    domain: "network automation / source of truth",
+    language: "Python, Django",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Strong enterprise Django repo with a real company behind hosted NetBox. Good if you want infra-adjacent Python without Go/Kubernetes.",
+    caution:
+      "Their process is strict: accepted issues matter. Do not open PRs before the issue is accepted or you will waste time.",
+    labels: ["status: accepted", "type: bug", "status: needs owner"],
+  },
+  {
+    fullName: "apache/airflow",
+    company: "Astronomer, Google Cloud, data-platform employers",
+    domain: "workflow orchestration / data engineering",
+    language: "Python, React, TypeScript",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "High hiring signal for Python backend/data-platform jobs. Many companies hire around Airflow experience.",
+    caution:
+      "Apache process is slower and more formal. You need patience, tests, and willingness to discuss design publicly.",
+    labels: ["good first issue", "kind:bug", "area:*"],
+  },
+  {
+    fullName: "dagster-io/dagster",
+    company: "Dagster Labs",
+    domain: "data orchestration / data assets",
+    language: "Python, TypeScript, React",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Very relevant if you want modern data-platform roles. Company-backed, active, Python-heavy, and UI-heavy.",
+    caution:
+      "Large issue count does not mean easy. Start with integrations/docs/tests before core orchestration semantics.",
+    labels: ["good first issue", "bug", "area:*"],
+  },
+  {
+    fullName: "PrefectHQ/prefect",
+    company: "Prefect",
+    domain: "workflow orchestration",
+    language: "Python",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good Python product-infra repo with a company behind it. Faster ramp than Airflow for many contributors.",
+    caution:
+      "Make sure issues apply to current major versions; old Prefect behavior changed significantly across versions.",
+    labels: ["bug", "good first issue", "help wanted"],
+  },
+  {
+    fullName: "mlflow/mlflow",
+    company: "Databricks / ML platform ecosystem",
+    domain: "ML lifecycle / AI engineering",
+    language: "Python, TypeScript, React",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Strong if you want ML platform roles without becoming a model researcher. Good bridge from Python web/API work into AI tooling.",
+    caution:
+      "Issues often depend on Databricks or cloud-specific behavior. Reproducibility is the gate; without it, PRs are weak.",
+    labels: ["bug", "area/*", "good first issue"],
+  },
+  {
+    fullName: "appsmithorg/appsmith",
+    company: "Appsmith",
+    domain: "internal tools / low-code platform",
+    language: "TypeScript, React, Java",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Useful if you want React-heavy product engineering. Many frontend bugs are visible and user-facing.",
+    caution:
+      "Not Python/Django. Good for React credibility, but less aligned with your backend stack.",
+    labels: ["Good First Issue", "Frontend", "Bug"],
+  },
+  {
+    fullName: "mattermost/mattermost",
+    company: "Mattermost",
+    domain: "collaboration / messaging",
+    language: "TypeScript, React, Go",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Good React product-engineering target with a company behind it and many help-wanted issues.",
+    caution:
+      "Backend is Go. If you only want Python/Django, this is a secondary target, not your main year-long bet.",
+    labels: ["Help Wanted", "Bug Report/Open", "Area/*"],
+  },
+  {
     fullName: "keycloak/keycloak",
     company: "Red Hat / CNCF ecosystem",
     domain: "identity / access management",
@@ -136,6 +316,70 @@ const sourceLinks = [
     href: "https://github.com/ansible/ansible",
   },
   {
+    label: "Ansible organization repositories",
+    href: "https://github.com/ansible",
+  },
+  {
+    label: "AWX repository",
+    href: "https://github.com/ansible/awx",
+  },
+  {
+    label: "django-ansible-base repository",
+    href: "https://github.com/ansible/django-ansible-base",
+  },
+  {
+    label: "ansible-lint repository",
+    href: "https://github.com/ansible/ansible-lint",
+  },
+  {
+    label: "Sentry repository",
+    href: "https://github.com/getsentry/sentry",
+  },
+  {
+    label: "Zulip repository",
+    href: "https://github.com/zulip/zulip",
+  },
+  {
+    label: "Saleor repository",
+    href: "https://github.com/saleor/saleor",
+  },
+  {
+    label: "Saleor Storefront repository",
+    href: "https://github.com/saleor/storefront",
+  },
+  {
+    label: "Wagtail repository",
+    href: "https://github.com/wagtail/wagtail",
+  },
+  {
+    label: "NetBox repository",
+    href: "https://github.com/netbox-community/netbox",
+  },
+  {
+    label: "Airflow repository",
+    href: "https://github.com/apache/airflow",
+  },
+  {
+    label: "Dagster repository",
+    href: "https://github.com/dagster-io/dagster",
+  },
+  {
+    label: "Prefect repository",
+    href: "https://github.com/PrefectHQ/prefect",
+  },
+  {
+    label: "MLflow repository",
+    href: "https://github.com/mlflow/mlflow",
+  },
+  {
+    label: "Appsmith repository",
+    href: "https://github.com/appsmithorg/appsmith",
+  },
+  {
+    label: "Mattermost repository",
+    href: "https://github.com/mattermost/mattermost",
+  },
+  {
     label: "Keycloak repository",
     href: "https://github.com/keycloak/keycloak",
   },
@@ -165,7 +409,12 @@ const sourceLinks = [
   },
 ];
 
-const defaultWatched = ["ansible/ansible", "keycloak/keycloak"];
+const defaultWatched = [
+  "ansible/django-ansible-base",
+  "getsentry/sentry",
+  "zulip/zulip",
+  "saleor/saleor",
+];
 const pollOptions = [30_000, 60_000, 120_000, 300_000];
 
 function formatAge(value: string) {
@@ -339,24 +588,32 @@ export default function Home() {
           <div className="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-5 text-amber-50">
             <h2 className="text-lg font-semibold">Recommendation</h2>
             <p className="mt-3 text-sm leading-6 text-amber-100/90">
-              If you want the highest odds-to-effort ratio, start with{" "}
+              Given Python, Django, and some React, your best first targets are{" "}
               <a
                 className="font-semibold underline decoration-amber-200/60 underline-offset-4"
-                href="https://github.com/ansible/ansible"
+                href="https://github.com/zulip/zulip"
                 target="_blank"
               >
-                ansible/ansible
+                zulip/zulip
               </a>{" "}
-              or{" "}
+              for contributor onboarding,{" "}
               <a
                 className="font-semibold underline decoration-amber-200/60 underline-offset-4"
-                href="https://github.com/keycloak/keycloak"
+                href="https://github.com/getsentry/sentry"
                 target="_blank"
               >
-                keycloak/keycloak
-              </a>
-              . Kubernetes and Cilium are stronger signals, but they are harsher
-              ramps and easier to waste months on.
+                getsentry/sentry
+              </a>{" "}
+              for high hiring signal, or{" "}
+              <a
+                className="font-semibold underline decoration-amber-200/60 underline-offset-4"
+                href="https://github.com/ansible/django-ansible-base"
+                target="_blank"
+              >
+                ansible/django-ansible-base
+              </a>{" "}
+              if you specifically want Red Hat relevance. Kubernetes/Cilium are
+              famous, but they are the wrong default for your current stack.
             </p>
           </div>
         </header>
