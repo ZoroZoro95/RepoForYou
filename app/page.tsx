@@ -27,6 +27,19 @@ type GithubIssue = {
   pull_request?: unknown;
 };
 
+type GithubRepoResult = {
+  id: number;
+  full_name: string;
+  html_url: string;
+  description: string | null;
+  language: string | null;
+  stargazers_count: number;
+  forks_count: number;
+  open_issues_count: number;
+  pushed_at: string;
+  topics?: string[];
+};
+
 const repos: Repo[] = [
   {
     fullName: "makeplane/plane",
@@ -1147,7 +1160,13 @@ export default function Home() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showWatchedOnly, setShowWatchedOnly] = useState(false);
   const [activeView, setActiveView] = useState<"explore" | "guide">("explore");
+  const [searchScope, setSearchScope] = useState<"curated" | "github">("curated");
   const [currentPage, setCurrentPage] = useState(1);
+  const [githubResults, setGithubResults] = useState<GithubRepoResult[]>([]);
+  const [githubTotal, setGithubTotal] = useState(0);
+  const [githubPage, setGithubPage] = useState(1);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [githubError, setGithubError] = useState("");
   const knownIssueIds = useRef<Set<number>>(new Set());
   const initialLoadComplete = useRef(false);
 
@@ -1293,6 +1312,53 @@ export default function Home() {
     visiblePage * reposPerPage,
   );
 
+  const githubPageCount = Math.max(
+    1,
+    Math.ceil(Math.min(githubTotal, 1000) / reposPerPage),
+  );
+
+  async function searchGithub(page = 1) {
+    const searchTerm = query.trim();
+    if (!searchTerm) {
+      setGithubError("Enter a repository, technology, or topic to search GitHub.");
+      return;
+    }
+
+    setGithubLoading(true);
+    setGithubError("");
+    try {
+      const headers: HeadersInit = {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      };
+      if (token.trim()) headers.Authorization = `Bearer ${token.trim()}`;
+      const params = new URLSearchParams({
+        q: `${searchTerm} archived:false`,
+        sort: "stars",
+        order: "desc",
+        per_page: String(reposPerPage),
+        page: String(page),
+      });
+      const response = await fetch(`https://api.github.com/search/repositories?${params}`, {
+        headers,
+      });
+      if (!response.ok) {
+        throw new Error(`GitHub returned ${response.status} ${response.statusText}`);
+      }
+      const data = (await response.json()) as {
+        total_count: number;
+        items: GithubRepoResult[];
+      };
+      setGithubResults(data.items);
+      setGithubTotal(data.total_count);
+      setGithubPage(page);
+    } catch (err) {
+      setGithubError(err instanceof Error ? err.message : "GitHub search failed");
+    } finally {
+      setGithubLoading(false);
+    }
+  }
+
   async function enableNotifications() {
     if (!("Notification" in window)) return;
     const permission = await Notification.requestPermission();
@@ -1398,13 +1464,17 @@ export default function Home() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-                Explore the catalog
+                Repository discovery
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-white">
-                Filter by stack and ecosystem
+                {searchScope === "curated"
+                  ? "Filter by stack and ecosystem"
+                  : "Search every public GitHub repository"}
               </h2>
               <p className="mt-2 text-sm text-slate-400">
-                Multiple tags use AND logic. Python + YC shows repositories that match both.
+                {searchScope === "curated"
+                  ? "Multiple tags use AND logic. Python + YC shows repositories that match both."
+                  : "Results come live from GitHub and can be added directly to your watchlist."}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -1421,7 +1491,7 @@ export default function Home() {
               >
                 Watched only · {watched.length}
               </button>
-              {(selectedTags.length > 0 || query || showWatchedOnly) && (
+              {searchScope === "curated" && (selectedTags.length > 0 || query || showWatchedOnly) && (
                 <button
                   className="rounded-full border border-white/10 px-4 py-2 text-sm text-slate-300 hover:border-rose-300/50 hover:text-rose-100"
                   onClick={() => {
@@ -1437,8 +1507,35 @@ export default function Home() {
             </div>
           </div>
 
-          <label className="mt-6 block">
-            <span className="sr-only">Search repositories</span>
+          <div className="mt-6 flex w-fit rounded-xl border border-white/10 bg-slate-950/70 p-1">
+            {(["curated", "github"] as const).map((scope) => (
+              <button
+                aria-pressed={searchScope === scope}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                  searchScope === scope
+                    ? "bg-white text-slate-950"
+                    : "text-slate-400 hover:text-white"
+                }`}
+                key={scope}
+                onClick={() => {
+                  setSearchScope(scope);
+                  setCurrentPage(1);
+                }}
+              >
+                {scope === "curated" ? "Curated" : "All GitHub"}
+              </button>
+            ))}
+          </div>
+
+          <form
+            className="mt-4 flex flex-col gap-2 sm:flex-row"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (searchScope === "github") searchGithub(1);
+            }}
+          >
+            <label className="block flex-1">
+              <span className="sr-only">Search repositories</span>
             <input
               className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-5 py-4 text-white outline-none placeholder:text-slate-600 focus:border-cyan-300"
               type="search"
@@ -1447,11 +1544,25 @@ export default function Home() {
                 setQuery(event.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search repos, companies, domains, or technologies..."
+              placeholder={
+                searchScope === "curated"
+                  ? "Search curated repos, companies, or technologies..."
+                  : "Try: python speech recognition, topic:observability, or stars:>5000"
+              }
             />
-          </label>
+            </label>
+            {searchScope === "github" && (
+              <button
+                className="rounded-2xl bg-cyan-300 px-6 py-4 font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:opacity-50"
+                disabled={githubLoading}
+                type="submit"
+              >
+                {githubLoading ? "Searching..." : "Search GitHub"}
+              </button>
+            )}
+          </form>
 
-          <div className="mt-4 flex flex-wrap gap-2" aria-label="Repository tags">
+          {searchScope === "curated" && <div className="mt-4 flex flex-wrap gap-2" aria-label="Repository tags">
             {tagOrder.map((tag) => {
               const active = selectedTags.includes(tag);
               return (
@@ -1469,7 +1580,17 @@ export default function Home() {
                 </button>
               );
             })}
-          </div>
+          </div>}
+          {searchScope === "github" && githubError && (
+            <p className="mt-4 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100">
+              {githubError}
+            </p>
+          )}
+          {searchScope === "github" && !token.trim() && (
+            <p className="mt-3 text-xs text-slate-500">
+              GitHub applies a stricter anonymous limit to repository search. Add a token in the watcher settings if searches begin returning 403.
+            </p>
+          )}
         </section>
 
         <section className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
@@ -1600,7 +1721,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section>
+        {searchScope === "curated" && <section>
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -1628,12 +1749,12 @@ export default function Home() {
             return (
               <article
                 key={repo.fullName}
-                className="flex flex-col rounded-3xl border border-white/10 bg-white/[0.04] p-5"
+                className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-5"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <a
-                      className="text-lg font-semibold text-white hover:text-cyan-200"
+                      className="block break-words text-lg font-semibold text-white hover:text-cyan-200"
                       href={`https://github.com/${repo.fullName}`}
                       target="_blank"
                     >
@@ -1733,7 +1854,117 @@ export default function Home() {
               </button>
             </nav>
           )}
-        </section>
+        </section>}
+
+        {searchScope === "github" && (
+          <section>
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  Live GitHub search
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold text-white">
+                  {githubTotal > 0
+                    ? `${githubTotal.toLocaleString()} repositories found`
+                    : "Search beyond the curated catalog"}
+                </h2>
+              </div>
+              {githubTotal > 1000 && (
+                <p className="text-sm text-slate-500">GitHub exposes the first 1,000 results.</p>
+              )}
+            </div>
+
+            {githubResults.length === 0 && !githubLoading && (
+              <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center">
+                <h3 className="text-lg font-semibold text-white">Search GitHub’s public repositories</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Use plain terms or GitHub qualifiers such as language:python, topic:audio, or stars:&gt;1000.
+                </p>
+              </div>
+            )}
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {githubResults.map((repo) => {
+                const active = watched.includes(repo.full_name);
+                return (
+                  <article
+                    className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-5"
+                    key={repo.id}
+                  >
+                    <div className="min-w-0">
+                      <a
+                        className="block break-words text-lg font-semibold text-white hover:text-cyan-200"
+                        href={repo.html_url}
+                        target="_blank"
+                      >
+                        {repo.full_name}
+                      </a>
+                      <p className="mt-3 min-h-12 text-sm leading-6 text-slate-400">
+                        {repo.description || "No repository description provided."}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-300">
+                      {repo.language && (
+                        <span className="rounded-full bg-cyan-300/10 px-2 py-1 text-cyan-100">
+                          {repo.language}
+                        </span>
+                      )}
+                      <span className="rounded-full bg-slate-950 px-2 py-1">
+                        ★ {repo.stargazers_count.toLocaleString()}
+                      </span>
+                      <span className="rounded-full bg-slate-950 px-2 py-1">
+                        {repo.forks_count.toLocaleString()} forks
+                      </span>
+                      <span className="rounded-full bg-slate-950 px-2 py-1">
+                        {repo.open_issues_count.toLocaleString()} open issues
+                      </span>
+                    </div>
+
+                    <p className="mt-4 text-xs text-slate-500">
+                      Last pushed {formatAge(repo.pushed_at)}
+                    </p>
+                    <button
+                      className={`mt-5 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                        active
+                          ? "bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+                          : "border border-white/10 text-slate-200 hover:border-cyan-300/60"
+                      }`}
+                      onClick={() => toggleRepo(repo.full_name)}
+                    >
+                      {active ? "Watching" : "Watch issues"}
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+
+            {githubResults.length > 0 && (
+              <nav
+                aria-label="GitHub search pages"
+                className="mt-6 flex items-center justify-center gap-3"
+              >
+                <button
+                  className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 disabled:opacity-40"
+                  disabled={githubPage === 1 || githubLoading}
+                  onClick={() => searchGithub(githubPage - 1)}
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-slate-400">
+                  Page <strong className="text-white">{githubPage}</strong> of {githubPageCount}
+                </span>
+                <button
+                  className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 disabled:opacity-40"
+                  disabled={githubPage === githubPageCount || githubLoading}
+                  onClick={() => searchGithub(githubPage + 1)}
+                >
+                  Next
+                </button>
+              </nav>
+            )}
+          </section>
+        )}
         </>}
 
         {false && <section className="rounded-[2rem] border border-violet-300/20 bg-violet-300/[0.06] p-5 lg:p-7">

@@ -32,10 +32,12 @@ test("server-renders the generalized repository catalog", async () => {
   assert.match(html, /Find an open-source repo that fits your stack/i);
   assert.match(html, /Filter by stack and ecosystem/i);
   assert.match(html, /Multiple tags use AND logic/i);
-  assert.match(html, /Search repos, companies, domains, or technologies/i);
+  assert.match(html, /Search curated repos, companies, or technologies/i);
   assert.match(html, /Watched only/i);
   assert.match(html, /Repository catalog/i);
   assert.match(html, /Contribution guide/i);
+  assert.match(html, /All GitHub/i);
+  assert.match(html, /Curated/i);
   assert.match(html, /aria-label="Repository pages"/i);
   assert.match(html, />Previous</i);
   assert.match(html, />Next</i);
