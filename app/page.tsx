@@ -1087,6 +1087,7 @@ const sourceLinks = [
 
 const defaultWatched: string[] = [];
 const pollOptions = [30_000, 60_000, 120_000, 300_000];
+const reposPerPage = 12;
 
 function readStoredToken() {
   return window.localStorage.getItem("github-token") ?? "";
@@ -1145,6 +1146,8 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showWatchedOnly, setShowWatchedOnly] = useState(false);
+  const [activeView, setActiveView] = useState<"explore" | "guide">("explore");
+  const [currentPage, setCurrentPage] = useState(1);
   const knownIssueIds = useRef<Set<number>>(new Set());
   const initialLoadComplete = useRef(false);
 
@@ -1283,6 +1286,13 @@ export default function Home() {
     });
   }, [query, selectedTags, showWatchedOnly, watched]);
 
+  const pageCount = Math.max(1, Math.ceil(filteredRepos.length / reposPerPage));
+  const visiblePage = Math.min(currentPage, pageCount);
+  const paginatedRepos = filteredRepos.slice(
+    (visiblePage - 1) * reposPerPage,
+    visiblePage * reposPerPage,
+  );
+
   async function enableNotifications() {
     if (!("Notification" in window)) return;
     const permission = await Notification.requestPermission();
@@ -1298,6 +1308,7 @@ export default function Home() {
   }
 
   function toggleTag(tag: string) {
+    setCurrentPage(1);
     setSelectedTags((current) =>
       current.includes(tag)
         ? current.filter((item) => item !== tag)
@@ -1354,6 +1365,35 @@ export default function Home() {
           </div>
         </header>
 
+        <nav
+          aria-label="Primary navigation"
+          className="flex w-fit rounded-2xl border border-white/10 bg-slate-950/70 p-1"
+        >
+          <button
+            aria-current={activeView === "explore" ? "page" : undefined}
+            className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${
+              activeView === "explore"
+                ? "bg-cyan-300 text-slate-950"
+                : "text-slate-300 hover:text-white"
+            }`}
+            onClick={() => setActiveView("explore")}
+          >
+            Explore repos
+          </button>
+          <button
+            aria-current={activeView === "guide" ? "page" : undefined}
+            className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${
+              activeView === "guide"
+                ? "bg-cyan-300 text-slate-950"
+                : "text-slate-300 hover:text-white"
+            }`}
+            onClick={() => setActiveView("guide")}
+          >
+            Contribution guide
+          </button>
+        </nav>
+
+        {activeView === "explore" && <>
         <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 lg:p-7">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -1374,7 +1414,10 @@ export default function Home() {
                     ? "bg-cyan-300 text-slate-950"
                     : "border border-white/10 text-slate-300 hover:border-cyan-300/50"
                 }`}
-                onClick={() => setShowWatchedOnly((value) => !value)}
+                onClick={() => {
+                  setCurrentPage(1);
+                  setShowWatchedOnly((value) => !value);
+                }}
               >
                 Watched only · {watched.length}
               </button>
@@ -1385,6 +1428,7 @@ export default function Home() {
                     setSelectedTags([]);
                     setQuery("");
                     setShowWatchedOnly(false);
+                    setCurrentPage(1);
                   }}
                 >
                   Clear filters
@@ -1399,7 +1443,10 @@ export default function Home() {
               className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-5 py-4 text-white outline-none placeholder:text-slate-600 focus:border-cyan-300"
               type="search"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Search repos, companies, domains, or technologies..."
             />
           </label>
@@ -1576,7 +1623,7 @@ export default function Home() {
             </div>
           )}
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {filteredRepos.map((repo) => {
+          {paginatedRepos.map((repo) => {
             const active = watched.includes(repo.fullName);
             return (
               <article
@@ -1635,14 +1682,6 @@ export default function Home() {
                       {tag}
                     </button>
                   ))}
-                  {repo.labels.map((label) => (
-                    <span
-                      className="rounded-full bg-slate-900 px-2 py-1 text-[11px] text-slate-300"
-                      key={label}
-                    >
-                      {label}
-                    </span>
-                  ))}
                 </div>
 
                 <button
@@ -1659,7 +1698,43 @@ export default function Home() {
             );
           })}
           </div>
+          {pageCount > 1 && (
+            <nav
+              aria-label="Repository pages"
+              className="mt-6 flex flex-wrap items-center justify-center gap-2"
+            >
+              <button
+                className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={visiblePage === 1}
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              >
+                Previous
+              </button>
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map((page) => (
+                <button
+                  aria-current={page === visiblePage ? "page" : undefined}
+                  className={`h-10 min-w-10 rounded-xl px-3 text-sm font-semibold transition ${
+                    page === visiblePage
+                      ? "bg-cyan-300 text-slate-950"
+                      : "border border-white/10 text-slate-300 hover:border-cyan-300/50"
+                  }`}
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={visiblePage === pageCount}
+                onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}
+              >
+                Next
+              </button>
+            </nav>
+          )}
         </section>
+        </>}
 
         {false && <section className="rounded-[2rem] border border-violet-300/20 bg-violet-300/[0.06] p-5 lg:p-7">
           <div className="mb-5 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
@@ -1768,43 +1843,48 @@ export default function Home() {
           </div>
         </section>}
 
-        <section className="grid gap-4 lg:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 lg:col-span-2">
-            <h2 className="text-xl font-semibold text-white">
-              From discovery to first contribution
+        {activeView === "guide" && (
+          <section
+            className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 lg:p-10"
+            data-source-count={sourceLinks.length}
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+              Contribution guide
+            </p>
+            <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white sm:text-4xl">
+              Make your first contribution without wasting maintainers&apos; time.
             </h2>
-            <ol className="mt-4 grid gap-3 text-sm leading-6 text-slate-300 md:grid-cols-3">
-              <li className="rounded-2xl bg-slate-950/70 p-4">
-                <span className="text-cyan-200">1. Filter:</span> combine stack
-                and ecosystem tags until the list is small enough to inspect.
-              </li>
-              <li className="rounded-2xl bg-slate-950/70 p-4">
-                <span className="text-cyan-200">2. Watch:</span> save promising
-                repositories and monitor new issues while the page is open.
-              </li>
-              <li className="rounded-2xl bg-slate-950/70 p-4">
-                <span className="text-cyan-200">3. Verify:</span> reproduce an
-                issue, read contribution rules, and discuss scope before coding.
-              </li>
-            </ol>
-          </div>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300">
+              A useful contribution starts with verification and communication,
+              not immediately editing code. Follow this sequence for any repository.
+            </p>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-            <h2 className="text-xl font-semibold text-white">Catalog sources</h2>
-            <div className="mt-4 grid gap-2 text-sm">
-              {sourceLinks.map((link) => (
-                <a
-                  className="rounded-2xl border border-white/10 px-3 py-2 text-slate-300 hover:border-cyan-300/50 hover:text-cyan-100"
-                  href={link.href}
-                  key={link.href}
-                  target="_blank"
-                >
-                  {link.label}
-                </a>
+            <ol className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {[
+                ["01", "Check project health", "Look for recent commits, releases, issue responses, and merged community pull requests."],
+                ["02", "Read the rules", "Open README, CONTRIBUTING, development setup, test instructions, and pull-request templates."],
+                ["03", "Reproduce the problem", "Confirm the issue still exists on the current default branch and record exact reproduction steps."],
+                ["04", "Agree on scope", "Comment with your diagnosis and proposed fix. Ask before implementing broad or compatibility-sensitive changes."],
+                ["05", "Fix it with tests", "Make the smallest complete change, add a regression test, and run the project’s required checks."],
+                ["06", "Write a reviewable PR", "Explain the problem, root cause, solution, verification, risks, and any behavior intentionally left unchanged."],
+              ].map(([number, title, description]) => (
+                <li className="rounded-3xl border border-white/10 bg-slate-950/70 p-5" key={number}>
+                  <span className="font-mono text-sm font-semibold text-cyan-200">{number}</span>
+                  <h3 className="mt-3 text-lg font-semibold text-white">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">{description}</p>
+                </li>
               ))}
+            </ol>
+
+            <div className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-5">
+              <h3 className="font-semibold text-amber-50">Do not start with a blind pull request.</h3>
+              <p className="mt-2 max-w-4xl text-sm leading-6 text-amber-100/90">
+                An issue label is not permission, and an unassigned issue may already have work in progress.
+                Search linked pull requests, read the discussion, and confirm the expected behavior first.
+              </p>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </section>
     </main>
   );
