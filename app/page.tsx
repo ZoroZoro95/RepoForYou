@@ -1388,8 +1388,21 @@ export default function Home() {
       : "";
 
   return (
-    <main className="min-h-screen bg-[#08111f] text-slate-100">
-      <section className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-10">
+    <main className="relative min-h-screen overflow-hidden text-slate-100">
+      <div aria-hidden="true" className="space-scene">
+        <div className="space-nebula" />
+        <div className="star-layer star-layer-far" />
+        <div className="star-layer star-layer-mid" />
+        <div className="star-layer star-layer-near" />
+        <div className="space-planet">
+          <div className="space-planet-glow" />
+          <div className="space-planet-body" />
+          <div className="space-planet-ring" />
+        </div>
+        <div className="shooting-star shooting-star-one" />
+        <div className="shooting-star shooting-star-two" />
+      </div>
+      <section className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-10">
         <header className="grid gap-6 rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-950 via-[#10213b] to-[#0e2a34] p-6 shadow-2xl shadow-black/30 lg:grid-cols-[1.2fr_0.8fr] lg:p-10">
           <div>
             <p className="mb-3 w-fit rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-cyan-200">
@@ -2208,6 +2221,57 @@ export default function Home() {
             </div>
           </section>
         )}
+
+        <footer className="mt-4 border-t border-white/10 px-2 py-8 text-sm text-slate-400">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold text-slate-200">
+                Made for OSS with <span className="text-rose-400" aria-label="love">♥</span>
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Your watchlist and optional token stay in this browser.
+              </p>
+            </div>
+
+            <nav aria-label="Footer navigation" className="flex flex-wrap gap-x-5 gap-y-3">
+              <button
+                className="transition hover:text-cyan-200"
+                onClick={() => {
+                  setActiveView("explore");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                Explore repos
+              </button>
+              <button
+                className="transition hover:text-cyan-200"
+                onClick={() => {
+                  setActiveView("guide");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                Contribution guide
+              </button>
+              <button
+                className="transition hover:text-cyan-200"
+                onClick={() => {
+                  setActiveView("token");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                Token setup
+              </button>
+              <a
+                className="transition hover:text-cyan-200"
+                href="https://github.com/ZoroZoro95/RepoForYou"
+                rel="noreferrer"
+                target="_blank"
+              >
+                GitHub ↗
+              </a>
+            </nav>
+          </div>
+        </footer>
       </section>
     </main>
   );
