@@ -37,6 +37,8 @@ test("server-renders the generalized repository catalog", async () => {
   assert.match(html, /Repository catalog/i);
   assert.match(html, /Contribution guide/i);
   assert.match(html, /GitHub token setup/i);
+  assert.match(html, /Made for OSS with/i);
+  assert.match(html, /Footer navigation/i);
   assert.match(html, /All GitHub/i);
   assert.match(html, /Curated/i);
   assert.match(html, /aria-label="Repository pages"/i);
