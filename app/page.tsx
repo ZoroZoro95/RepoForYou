@@ -29,6 +29,42 @@ type GithubIssue = {
 
 const repos: Repo[] = [
   {
+    fullName: "makeplane/plane",
+    company: "Plane",
+    domain: "project management / collaboration",
+    language: "Python, FastAPI, TypeScript, React",
+    signal: "Excellent",
+    difficulty: "Medium",
+    fit: "A modern full-stack product with public APIs, background jobs, permissions, integrations, and a large self-hosted community.",
+    caution:
+      "The codebase moves quickly. Confirm the issue is still reproducible and discuss larger fixes before investing heavily.",
+    labels: ["bug", "api", "backend", "frontend"],
+  },
+  {
+    fullName: "SigNoz/signoz",
+    company: "SigNoz",
+    domain: "observability / OpenTelemetry",
+    language: "Go, TypeScript, React, Python",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Strong infrastructure target for traces, metrics, logs, dashboards, query systems, and emerging LLM observability work.",
+    caution:
+      "This is distributed-systems work. A cosmetic dashboard change is weaker than a measured correctness, query, or telemetry fix.",
+    labels: ["bug", "opentelemetry", "observability", "ai"],
+  },
+  {
+    fullName: "ComposioHQ/composio",
+    company: "Composio",
+    domain: "agent integrations / tool infrastructure",
+    language: "Python, TypeScript",
+    signal: "Excellent",
+    difficulty: "Medium",
+    fit: "A current AI infrastructure repo with useful SDK, authentication, schema conversion, routing, and integration surfaces.",
+    caution:
+      "Avoid shallow connector count. Authentication correctness, SDK reliability, schemas, and tool routing provide stronger evidence.",
+    labels: ["bug", "sdk", "authentication", "agent"],
+  },
+  {
     fullName: "ansible/ansible",
     company: "Red Hat",
     domain: "automation / infrastructure",
@@ -832,13 +868,7 @@ function catalogTags(repo: Repo, isYc: boolean) {
   if (includes("c++") || includes("cuda")) tags.add("C++");
   if (/(^|\W)java(\W|$)/i.test(repo.language)) tags.add("Java");
   if (includes("kubernetes") || includes("kubeflow")) tags.add("Kubernetes");
-  if (
-    includes("ai") ||
-    includes("ml") ||
-    includes("llm") ||
-    includes("model") ||
-    includes("agent")
-  )
+  if (/\b(ai|ml|llm|machine learning|models?|agents?)\b/i.test(haystack))
     tags.add("AI / ML");
   if (isYc) tags.add("YC");
   if (includes("red hat") || includes("openshift") || includes("ansible"))
@@ -853,6 +883,18 @@ const catalogRepos: CatalogRepo[] = [
 ];
 
 const sourceLinks = [
+  {
+    label: "Plane repository",
+    href: "https://github.com/makeplane/plane",
+  },
+  {
+    label: "SigNoz repository",
+    href: "https://github.com/SigNoz/signoz",
+  },
+  {
+    label: "Composio repository",
+    href: "https://github.com/ComposioHQ/composio",
+  },
   {
     label: "Red Hat contributions list",
     href: "https://www.redhat.com/en/about/open-source-program-office/contributions",
@@ -1043,12 +1085,7 @@ const sourceLinks = [
   },
 ];
 
-const defaultWatched = [
-  "ansible/django-ansible-base",
-  "getsentry/sentry",
-  "huggingface/transformers",
-  "kserve/kserve",
-];
+const defaultWatched: string[] = [];
 const pollOptions = [30_000, 60_000, 120_000, 300_000];
 
 function readStoredToken() {
@@ -1133,7 +1170,10 @@ export default function Home() {
   }, [token, storageReady]);
 
   async function fetchIssues(silent = false) {
-    if (!watched.length) return;
+    if (!watched.length) {
+      setIssues({});
+      return;
+    }
     setLoading(!silent);
     setError("");
     try {
@@ -1731,28 +1771,26 @@ export default function Home() {
         <section className="grid gap-4 lg:grid-cols-3">
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 lg:col-span-2">
             <h2 className="text-xl font-semibold text-white">
-              One-year contribution strategy
+              From discovery to first contribution
             </h2>
             <ol className="mt-4 grid gap-3 text-sm leading-6 text-slate-300 md:grid-cols-3">
               <li className="rounded-2xl bg-slate-950/70 p-4">
-                <span className="text-cyan-200">Month 1:</span> reproduce bugs,
-                improve docs only where you verified behavior, and learn review
-                norms.
+                <span className="text-cyan-200">1. Filter:</span> combine stack
+                and ecosystem tags until the list is small enough to inspect.
               </li>
               <li className="rounded-2xl bg-slate-950/70 p-4">
-                <span className="text-cyan-200">Months 2-4:</span> land small
-                fixes with tests in one subsystem. Stop repo-hopping.
+                <span className="text-cyan-200">2. Watch:</span> save promising
+                repositories and monitor new issues while the page is open.
               </li>
               <li className="rounded-2xl bg-slate-950/70 p-4">
-                <span className="text-cyan-200">Months 5-12:</span> become the
-                person maintainers trust for a narrow area, then document the
-                impact publicly.
+                <span className="text-cyan-200">3. Verify:</span> reproduce an
+                issue, read contribution rules, and discuss scope before coding.
               </li>
             </ol>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-            <h2 className="text-xl font-semibold text-white">Evidence used</h2>
+            <h2 className="text-xl font-semibold text-white">Catalog sources</h2>
             <div className="mt-4 grid gap-2 text-sm">
               {sourceLinks.map((link) => (
                 <a
