@@ -1159,7 +1159,7 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showWatchedOnly, setShowWatchedOnly] = useState(false);
-  const [activeView, setActiveView] = useState<"explore" | "guide">("explore");
+  const [activeView, setActiveView] = useState<"explore" | "guide" | "token">("explore");
   const [searchScope, setSearchScope] = useState<"curated" | "github">("curated");
   const [currentPage, setCurrentPage] = useState(1);
   const [githubResults, setGithubResults] = useState<GithubRepoResult[]>([]);
@@ -1433,7 +1433,7 @@ export default function Home() {
 
         <nav
           aria-label="Primary navigation"
-          className="flex w-fit rounded-2xl border border-white/10 bg-slate-950/70 p-1"
+          className="flex w-fit max-w-full flex-wrap rounded-2xl border border-white/10 bg-slate-950/70 p-1"
         >
           <button
             aria-current={activeView === "explore" ? "page" : undefined}
@@ -1456,6 +1456,17 @@ export default function Home() {
             onClick={() => setActiveView("guide")}
           >
             Contribution guide
+          </button>
+          <button
+            aria-current={activeView === "token" ? "page" : undefined}
+            className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${
+              activeView === "token"
+                ? "bg-cyan-300 text-slate-950"
+                : "text-slate-300 hover:text-white"
+            }`}
+            onClick={() => setActiveView("token")}
+          >
+            GitHub token setup
           </button>
         </nav>
 
@@ -2113,6 +2124,87 @@ export default function Home() {
                 An issue label is not permission, and an unassigned issue may already have work in progress.
                 Search linked pull requests, read the discussion, and confirm the expected behavior first.
               </p>
+            </div>
+          </section>
+        )}
+
+        {activeView === "token" && (
+          <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 lg:p-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+              GitHub token setup
+            </p>
+            <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white sm:text-4xl">
+              Create a fine-grained token for higher API limits.
+            </h2>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300">
+              A token is optional. Repo Radar can search public repositories without one,
+              but GitHub gives signed-in API requests a much higher general rate limit.
+              For public discovery and issue watching, do not grant additional permissions.
+            </p>
+
+            <div className="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+              <div>
+                <ol className="grid gap-4">
+                  {[
+                    ["01", "Open token settings", "Sign in to GitHub, open Settings → Developer settings → Personal access tokens → Fine-grained tokens, then choose Generate new token."],
+                    ["02", "Name it and limit its lifetime", "Use a clear name such as Repo Radar and choose a 30- or 90-day expiration. Short-lived tokens reduce the damage if one leaks."],
+                    ["03", "Keep access minimal", "Choose your personal account as resource owner. Fine-grained tokens already include read-only access to public repositories, so leave every additional repository permission at No access."],
+                    ["04", "Generate and copy once", "GitHub only shows the token value after creation. Copy it without posting it, committing it, or including it in a screenshot."],
+                    ["05", "Paste it into Repo Radar", "Return to Explore repos and paste it into Optional GitHub token. It stays in this browser's local storage, so never use this option on a shared computer."],
+                  ].map(([number, title, description]) => (
+                    <li className="rounded-3xl border border-white/10 bg-slate-950/70 p-5" key={number}>
+                      <span className="font-mono text-sm font-semibold text-cyan-200">{number}</span>
+                      <h3 className="mt-2 text-lg font-semibold text-white">{title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-400">{description}</p>
+                    </li>
+                  ))}
+                </ol>
+
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <a
+                    className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
+                    href="https://github.com/settings/personal-access-tokens/new?name=Repo%20Radar&description=Public%20repository%20search%20and%20issue%20watching&expires_in=90"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Create token on GitHub ↗
+                  </a>
+                  <a
+                    className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-slate-200 hover:border-cyan-300/60"
+                    href="https://github.com/settings/personal-access-tokens"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Review or revoke tokens ↗
+                  </a>
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                <figure className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70">
+                  {/* The vinext runtime does not provide Next.js image optimization. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    alt="GitHub documentation explaining personal access tokens and warning users to treat them like passwords"
+                    className="h-auto w-full"
+                    height={887}
+                    src="/github-token-fine-grained-guide.png"
+                    width={762}
+                  />
+                  <figcaption className="p-4 text-xs leading-5 text-slate-400">
+                    GitHub treats access tokens like passwords. Never share the value or put it in a reel.
+                  </figcaption>
+                </figure>
+
+                <div className="rounded-3xl border border-rose-300/20 bg-rose-300/10 p-5">
+                  <h3 className="font-semibold text-rose-50">The uncomfortable security detail</h3>
+                  <p className="mt-2 text-sm leading-6 text-rose-100/90">
+                    Repo Radar stores the token unencrypted in this browser&apos;s local storage.
+                    That is convenient, not secure storage. Use a minimal, expiring token, avoid shared devices,
+                    and revoke it immediately if it appears in a screenshot, recording, commit, or log.
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
         )}
