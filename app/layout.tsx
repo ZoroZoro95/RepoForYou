@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Open Source Repo Radar",
+  title: "Repo Radar — Find Your Next Open-Source Project",
   description:
-    "A live dashboard for tracking serious company-adjacent open source repositories and newly opened GitHub issues.",
+    "Filter open-source repositories by stack and ecosystem, build a watchlist, and monitor newly opened GitHub issues.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

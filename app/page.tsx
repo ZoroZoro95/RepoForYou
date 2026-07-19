@@ -197,6 +197,198 @@ const repos: Repo[] = [
     labels: ["bug", "area/*", "good first issue"],
   },
   {
+    fullName: "huggingface/transformers",
+    company: "Hugging Face",
+    domain: "LLM / multimodal model library",
+    language: "Python, PyTorch",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Probably the best PyTorch-adjacent repo if you want AI/ML hiring signal without touching PyTorch core internals immediately.",
+    caution:
+      "Do not start by adding random new models. Fix reproducible PyTorch integration bugs, tokenizer/processor edge cases, docs, or tests first.",
+    labels: ["bug", "PyTorch", "Good First Issue"],
+  },
+  {
+    fullName: "huggingface/accelerate",
+    company: "Hugging Face",
+    domain: "distributed training / PyTorch runtime",
+    language: "Python, PyTorch",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "More focused than Transformers and closer to training systems: device placement, mixed precision, distributed execution, checkpointing.",
+    caution:
+      "Distributed bugs are environment-sensitive. If you cannot produce a minimal repro, maintainers cannot use your report or PR.",
+    labels: ["bug", "good first issue", "pytorch"],
+  },
+  {
+    fullName: "vllm-project/vllm",
+    company: "vLLM ecosystem / many AI infra employers",
+    domain: "LLM inference serving",
+    language: "Python, PyTorch, CUDA, C++",
+    signal: "Excellent",
+    difficulty: "Very high",
+    fit: "Very high hiring signal for modern AI infrastructure. If you know PyTorch and want production LLM serving, this is serious.",
+    caution:
+      "This is not beginner ML code. You need inference internals, GPU memory behavior, batching, kernels, and reproducible performance tests.",
+    labels: ["bug", "good first issue", "performance"],
+  },
+  {
+    fullName: "ray-project/ray",
+    company: "Anyscale / AI infrastructure ecosystem",
+    domain: "distributed compute / ML workloads",
+    language: "Python, C++, Java, React",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Strong Python ML-infra signal. Good if you want distributed systems plus ML workloads instead of pure model work.",
+    caution:
+      "Ray has many moving parts. Pick one library area; do not bounce between Core, Train, Serve, Data, and dashboard issues.",
+    labels: ["bug", "good first issue", "ray-train"],
+  },
+  {
+    fullName: "pytorch/pytorch",
+    company: "Meta / PyTorch Foundation ecosystem",
+    domain: "deep learning framework core",
+    language: "Python, C++, CUDA",
+    signal: "Excellent",
+    difficulty: "Very high",
+    fit: "Highest raw PyTorch prestige. Good only if you want to work near framework internals, dispatch, autograd, compiler, or GPU backend work.",
+    caution:
+      "Do not make this your first year-long target unless you are ready for C++/CUDA and deep internals. Most PyTorch users are not PyTorch contributors.",
+    labels: ["module:*", "good first issue", "triaged"],
+  },
+  {
+    fullName: "Lightning-AI/pytorch-lightning",
+    company: "Lightning AI",
+    domain: "PyTorch training framework",
+    language: "Python, PyTorch",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Better PyTorch entry point than core PyTorch if you want training loops, callbacks, logging, distributed training, and user-facing APIs.",
+    caution:
+      "API compatibility is the trap. A small convenience change can break many users; tests and deprecation handling matter.",
+    labels: ["bug", "good first issue", "help wanted"],
+  },
+  {
+    fullName: "bentoml/BentoML",
+    company: "BentoML",
+    domain: "model serving / ML application deployment",
+    language: "Python, TypeScript",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good practical ML engineering repo: packaging, serving APIs, deployment, observability, and Python-first production workflows.",
+    caution:
+      "Serving-library bugs need real deployment context. Avoid abstract suggestions; reproduce with a minimal service.",
+    labels: ["bug", "good first issue", "help wanted"],
+  },
+  {
+    fullName: "kserve/kserve",
+    company: "CNCF / Kubeflow / Red Hat OpenShift AI ecosystem",
+    domain: "model serving on Kubernetes",
+    language: "Go, Python",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Best Red Hat-adjacent ML serving repo. Red Hat publicly discusses KServe as part of its OpenShift AI/Open Data Hub work.",
+    caution:
+      "This is MLOps/platform engineering, not notebook ML. You need Kubernetes, CRDs, serving runtimes, and controller behavior.",
+    labels: ["kind/bug", "good first issue", "area/*"],
+  },
+  {
+    fullName: "kubeflow/pipelines",
+    company: "Kubeflow / Google / Red Hat OpenShift AI ecosystem",
+    domain: "ML pipelines / workflow orchestration",
+    language: "Python, Go, TypeScript",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Strong ML platform repo and explicitly part of Red Hat OpenShift AI's upstream ecosystem through Kubeflow/Open Data Hub.",
+    caution:
+      "Large platform surface. Start with SDK/compiler/test/documentation bugs before backend orchestration changes.",
+    labels: ["good first issue", "kind/bug", "area/*"],
+  },
+  {
+    fullName: "kubeflow/katib",
+    company: "Kubeflow / Red Hat OpenShift AI ecosystem",
+    domain: "AutoML / hyperparameter tuning",
+    language: "Python, Go",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Useful if you want ML platform work with optimization/search workflows rather than model architecture work.",
+    caution:
+      "Not a PyTorch-only repo. You need Kubernetes concepts and experiment lifecycle knowledge.",
+    labels: ["good first issue", "kind/bug", "area/*"],
+  },
+  {
+    fullName: "kubeflow/trainer",
+    company: "Kubeflow / Red Hat OpenShift AI ecosystem",
+    domain: "distributed training / LLM fine-tuning on Kubernetes",
+    language: "Go, Python, PyTorch",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Good bridge between your PyTorch knowledge and Red Hat-style platform engineering: training jobs, distributed workloads, fine-tuning.",
+    caution:
+      "The core is mostly Go. If you refuse Go/Kubernetes, do not pick it as your primary repo.",
+    labels: ["good first issue", "kind/bug", "pytorch"],
+  },
+  {
+    fullName: "opendatahub-io/odh-dashboard",
+    company: "Red Hat OpenShift AI / Open Data Hub",
+    domain: "AI platform dashboard",
+    language: "TypeScript, React",
+    signal: "Excellent",
+    difficulty: "Medium",
+    fit: "Best Red Hat-supported AI repo for your React side. It is closer to OpenShift AI product UX than generic ML libraries.",
+    caution:
+      "This is product/platform UI, not PyTorch. It is still highly relevant if you want Red Hat AI contribution signal.",
+    labels: ["bug", "good first issue", "frontend"],
+  },
+  {
+    fullName: "opendatahub-io/model-registry",
+    company: "Red Hat OpenShift AI / Open Data Hub",
+    domain: "ML model registry / metadata",
+    language: "Go, Python, TypeScript",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Highly relevant to enterprise MLOps: model versions, artifacts, registry workflows, and OpenShift AI upstream work.",
+    caution:
+      "Registry work is correctness-heavy. You need to understand metadata semantics and API compatibility before changing behavior.",
+    labels: ["bug", "good first issue", "area/*"],
+  },
+  {
+    fullName: "opendatahub-io/notebooks",
+    company: "Red Hat OpenShift AI / Open Data Hub",
+    domain: "Jupyter workbenches / data science environments",
+    language: "Python, Go, TypeScript",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good if you want user-facing data science platform work: notebook images, workbenches, and OpenShift AI integration.",
+    caution:
+      "Avoid only tweaking examples. Strong PRs improve reliability, packaging, security, or user workflow issues.",
+    labels: ["bug", "good first issue", "kind/*"],
+  },
+  {
+    fullName: "opendatahub-io/trustyai-service-operator",
+    company: "Red Hat OpenShift AI / Open Data Hub",
+    domain: "responsible AI / model monitoring",
+    language: "Go, Python",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Good Red Hat AI governance target: monitoring, explainability, fairness/drift service integration, operator work.",
+    caution:
+      "This is not model training. You need platform/operator skills and careful interpretation of ML monitoring concepts.",
+    labels: ["bug", "good first issue", "operator"],
+  },
+  {
+    fullName: "opendatahub-io/maas-billing",
+    company: "Red Hat OpenShift AI / Open Data Hub",
+    domain: "models-as-a-service / policy / billing",
+    language: "Go, React",
+    signal: "Selective",
+    difficulty: "High",
+    fit: "Interesting if you want emerging AI platform product work around hosted model access, policy, and usage tracking.",
+    caution:
+      "Work-in-progress repos can change direction quickly. Treat this as a secondary watch target, not your main year-long bet.",
+    labels: ["bug", "enhancement", "frontend"],
+  },
+  {
     fullName: "appsmithorg/appsmith",
     company: "Appsmith",
     domain: "internal tools / low-code platform",
@@ -231,6 +423,78 @@ const repos: Repo[] = [
     caution:
       "Auth bugs are not beginner toys. You need tests and standards awareness, otherwise maintainers will ignore you.",
     labels: ["good-first-issue", "kind/bug", "area/*"],
+  },
+  {
+    fullName: "openshift/console",
+    company: "Red Hat OpenShift",
+    domain: "Kubernetes platform console",
+    language: "TypeScript, React",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Strong Red Hat React target. If you want Red Hat but not pure backend, this is more aligned than Podman or KubeVirt.",
+    caution:
+      "Issue volume is low in the public tracker. You may need to follow contribution docs and discussions, not just wait for easy issues.",
+    labels: ["bug", "frontend", "lifecycle/*"],
+  },
+  {
+    fullName: "cockpit-project/cockpit",
+    company: "Red Hat ecosystem",
+    domain: "Linux server management UI",
+    language: "Python, JavaScript, C",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good Red Hat-adjacent fit for Python plus UI, especially if you care about Linux systems administration.",
+    caution:
+      "You need Linux/systemd/storage/networking context. UI-only contributions without systems understanding will be thin.",
+    labels: ["bug", "good first issue", "starter"],
+  },
+  {
+    fullName: "konveyor/tackle2-hub",
+    company: "Red Hat / Konveyor",
+    domain: "application modernization / migration",
+    language: "Go, TypeScript",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Legit Red Hat ecosystem repo for enterprise migration tooling. Good if you want platform/product backend work.",
+    caution:
+      "Not Python/Django. Useful for Red Hat signal, but you will need Go and Kubernetes-adjacent context.",
+    labels: ["bug", "good first issue", "kind/*"],
+  },
+  {
+    fullName: "containers/podman",
+    company: "Red Hat containers ecosystem",
+    domain: "containers / OCI runtime tooling",
+    language: "Go",
+    signal: "Excellent",
+    difficulty: "Very high",
+    fit: "High Red Hat signal and widely used. Pick only if you want serious Linux/container internals.",
+    caution:
+      "Wrong default for your Python/Django/PyTorch profile. Great repo, but expensive skill pivot.",
+    labels: ["kind/bug", "good first issue", "help wanted"],
+  },
+  {
+    fullName: "containers/skopeo",
+    company: "Red Hat containers ecosystem",
+    domain: "container image registry tooling",
+    language: "Go",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Smaller Red Hat container ecosystem target than Podman. Good for registry/image transport credibility.",
+    caution:
+      "Still a Go/Linux/container repo. Do not pick it if your goal is ML/Python career signaling.",
+    labels: ["kind/bug", "good first issue", "help wanted"],
+  },
+  {
+    fullName: "kubevirt/kubevirt",
+    company: "Red Hat virtualization ecosystem",
+    domain: "virtual machines on Kubernetes",
+    language: "Go",
+    signal: "Excellent",
+    difficulty: "Very high",
+    fit: "Very strong Red Hat/OpenShift signal for virtualization and Kubernetes platform roles.",
+    caution:
+      "Poor fit for your current stack unless you intentionally want to pivot into Kubernetes virtualization.",
+    labels: ["kind/bug", "good first issue", "area/*"],
   },
   {
     fullName: "kubernetes/kubernetes",
@@ -306,6 +570,288 @@ const repos: Repo[] = [
   },
 ];
 
+const ycRepos: Repo[] = [
+  {
+    fullName: "browser-use/browser-use",
+    company: "Browser Use — YC W25",
+    domain: "browser automation / AI agents",
+    language: "Python, Playwright, LLMs",
+    signal: "Excellent",
+    difficulty: "Medium",
+    fit: "One of the strongest recent YC open-source targets. Python-heavy, agentic browser automation, very visible, and close to hiring demand.",
+    caution:
+      "It is crowded. You need useful bug reproductions, connector fixes, or reliability work; low-effort agent demos will not stand out.",
+    labels: ["bug", "good first issue", "help wanted"],
+  },
+  {
+    fullName: "unslothai/unsloth",
+    company: "Unsloth AI — YC S24",
+    domain: "LLM fine-tuning / training efficiency",
+    language: "Python, PyTorch, Triton",
+    signal: "Excellent",
+    difficulty: "High",
+    fit: "Very aligned with PyTorch. High hiring signal for applied ML infra if you can handle training performance and model compatibility issues.",
+    caution:
+      "Do not start here unless you can reproduce GPU/training bugs. Performance claims require benchmarks, not vibes.",
+    labels: ["bug", "help wanted", "model"],
+  },
+  {
+    fullName: "mem0ai/mem0",
+    company: "Mem0 — YC S24",
+    domain: "AI memory / agent infrastructure",
+    language: "Python, TypeScript",
+    signal: "Excellent",
+    difficulty: "Medium",
+    fit: "Good Python + AI infra target with enough surface area for integrations, memory retrieval, tests, and SDK work.",
+    caution:
+      "AI memory is hype-heavy. Contributions need measurable behavior: failing test, retrieval quality issue, latency issue, or integration breakage.",
+    labels: ["bug", "good first issue", "integration"],
+  },
+  {
+    fullName: "onyx-dot-app/onyx",
+    company: "Onyx — YC W24",
+    domain: "enterprise RAG / search",
+    language: "Python, React, TypeScript",
+    signal: "Excellent",
+    difficulty: "Medium",
+    fit: "Strong fit for your Python/React/ML stack. Enterprise search, connectors, auth, retrieval, and UI all matter.",
+    caution:
+      "Connector work is useful, but shallow. Stronger signal comes from reliability, permissions, sync correctness, ranking, and evals.",
+    labels: ["bug", "good first issue", "connector"],
+  },
+  {
+    fullName: "manaflow-ai/cmux",
+    company: "Manaflow — YC S24",
+    domain: "AI coding workspace / agent orchestration",
+    language: "TypeScript, React",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good YC target if you want developer-tooling and React-heavy work around coding agents.",
+    caution:
+      "Less aligned with PyTorch. Pick it only if you want product/devtool UI and agent workflow engineering.",
+    labels: ["bug", "good first issue", "frontend"],
+  },
+  {
+    fullName: "confident-ai/deepeval",
+    company: "Confident AI — YC W25",
+    domain: "LLM evaluation / testing",
+    language: "Python",
+    signal: "Excellent",
+    difficulty: "Medium",
+    fit: "Very practical AI engineering repo. Python-first, testing/evals oriented, and easier to contribute to than core model infra.",
+    caution:
+      "Eval libraries attract fuzzy metrics. Good PRs need clear semantics, stable tests, and examples that do not overclaim.",
+    labels: ["bug", "good first issue", "docs"],
+  },
+  {
+    fullName: "vibrantlabsai/ragas",
+    company: "Vibrant Labs — YC W24",
+    domain: "RAG evaluation",
+    language: "Python",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good ML-adjacent Python target if you want RAG quality, evaluation, datasets, and test-driven contributions.",
+    caution:
+      "RAG evals can become hand-wavy. Focus on reproducibility, metric bugs, integrations, and benchmark examples.",
+    labels: ["bug", "good first issue", "evaluation"],
+  },
+  {
+    fullName: "rowboatlabs/rowboat",
+    company: "Rowboat Labs — YC S24",
+    domain: "AI agents / workflow automation",
+    language: "TypeScript, Python",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Recent YC open-source agent product with enough scope for backend, frontend, and integration contributions.",
+    caution:
+      "Agent repos often change quickly. Keep PRs small; avoid building speculative features they did not ask for.",
+    labels: ["bug", "good first issue", "agent"],
+  },
+  {
+    fullName: "tracecathq/tracecat",
+    company: "Tracecat — YC W24",
+    domain: "security automation / SOAR",
+    language: "Python, TypeScript",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good Python/React repo with a clear buyer and security workflow angle. Hiring signal is stronger than generic AI wrappers.",
+    caution:
+      "Security automation requires precision. Do not contribute toy workflows; fix real reliability, connector, permission, or incident-flow issues.",
+    labels: ["bug", "good first issue", "integration"],
+  },
+  {
+    fullName: "hatchet-dev/hatchet",
+    company: "Hatchet — YC W24",
+    domain: "durable task queues / workflow engine",
+    language: "Go, TypeScript, Python SDK",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Worth watching because backend workflow infra is serious hiring signal and has Python SDK surface area.",
+    caution:
+      "Core is not Django/PyTorch. Pick SDK/docs/integration issues first unless you are willing to learn Go internals.",
+    labels: ["bug", "good first issue", "sdk"],
+  },
+  {
+    fullName: "pretzelai/pretzelai",
+    company: "Pretzel AI — YC W24",
+    domain: "AI notebooks / data analysis",
+    language: "Python, TypeScript",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good fit if you want Python data tooling plus user-facing AI product work.",
+    caution:
+      "Notebook products can be messy. Strong PRs improve reproducibility, kernel/session reliability, packaging, or model-provider handling.",
+    labels: ["bug", "good first issue", "notebook"],
+  },
+  {
+    fullName: "openfoundry-ai/model_manager",
+    company: "OpenFoundry — YC W24",
+    domain: "open-source AI deployment tooling",
+    language: "Python",
+    signal: "Selective",
+    difficulty: "Medium",
+    fit: "Very aligned with open-source AI deployment, and small enough that meaningful contributions can be visible to founders.",
+    caution:
+      "Small repo means higher founder visibility but also less issue volume. You may need to propose well-scoped fixes, not just wait.",
+    labels: ["bug", "good first issue", "deployment"],
+  },
+  {
+    fullName: "better-auth/better-auth",
+    company: "Better Auth — YC S25",
+    domain: "authentication framework",
+    language: "TypeScript",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good recent YC open-source target if you want web platform credibility and security-adjacent engineering.",
+    caution:
+      "Auth is sharp-edged. Avoid behavior changes without tests and compatibility notes.",
+    labels: ["bug", "good first issue", "docs"],
+  },
+  {
+    fullName: "mastra-ai/mastra",
+    company: "Mastra — YC W25",
+    domain: "TypeScript AI agent framework",
+    language: "TypeScript",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Good for agent framework and TypeScript contributions. Useful if you want YC startup visibility more than PyTorch depth.",
+    caution:
+      "Not Python/PyTorch. Keep this secondary unless you want to shift toward TypeScript AI app infrastructure.",
+    labels: ["bug", "good first issue", "agent"],
+  },
+  {
+    fullName: "trycua/cua",
+    company: "Cua — YC S25",
+    domain: "computer-use agents / virtual computers",
+    language: "Python, TypeScript",
+    signal: "Strong",
+    difficulty: "High",
+    fit: "Interesting if you want browser/computer-use agents and Python automation. Potentially high upside because the category is hot.",
+    caution:
+      "Fast-moving early repo. Treat as watchlist, not primary, until you see maintainer responsiveness and issue quality.",
+    labels: ["bug", "good first issue", "agent"],
+  },
+  {
+    fullName: "mcp-use/mcp-use",
+    company: "Manufact — YC S25",
+    domain: "MCP / agent tool use",
+    language: "Python",
+    signal: "Strong",
+    difficulty: "Medium",
+    fit: "Python-heavy and relevant to agent/tooling work. Good if you want current AI infrastructure without deep GPU work.",
+    caution:
+      "MCP repos are multiplying. Only invest if maintainers respond and the repo has real downstream users.",
+    labels: ["bug", "good first issue", "mcp"],
+  },
+  {
+    fullName: "cactus-compute/cactus",
+    company: "Cactus — YC S25",
+    domain: "AI compute / local inference",
+    language: "C++, Python, mobile",
+    signal: "Selective",
+    difficulty: "High",
+    fit: "Potentially useful if you want edge/local inference and are willing to touch lower-level code.",
+    caution:
+      "Skill mismatch risk. If the active issues are C++/mobile-heavy, this is not your best near-term bet.",
+    labels: ["bug", "good first issue", "inference"],
+  },
+  {
+    fullName: "onecli/onecli",
+    company: "OneCLI — YC S26",
+    domain: "developer CLI",
+    language: "TypeScript",
+    signal: "Selective",
+    difficulty: "Low",
+    fit: "Earliest-stage YC 2026 watch target. Low competition can mean high visibility if the founders actively review external PRs.",
+    caution:
+      "Very early means unstable direction and uncertain hiring signal. Watch first; contribute only if issue quality is real.",
+    labels: ["bug", "good first issue", "cli"],
+  },
+];
+
+type CatalogRepo = Repo & { tags: string[] };
+
+const tagOrder = [
+  "Python",
+  "TypeScript",
+  "JavaScript",
+  "React",
+  "Django",
+  "PyTorch",
+  "Go",
+  "Rust",
+  "C++",
+  "Java",
+  "Kubernetes",
+  "AI / ML",
+  "YC",
+  "Red Hat",
+];
+
+function catalogTags(repo: Repo, isYc: boolean) {
+  const haystack = [
+    repo.language,
+    repo.domain,
+    repo.company,
+    repo.fit,
+    ...repo.labels,
+  ]
+    .join(" ")
+    .toLowerCase();
+  const tags = new Set<string>();
+  const includes = (value: string) => haystack.includes(value);
+
+  if (includes("python")) tags.add("Python");
+  if (includes("typescript")) tags.add("TypeScript");
+  if (includes("javascript")) tags.add("JavaScript");
+  if (includes("react")) tags.add("React");
+  if (includes("django")) tags.add("Django");
+  if (includes("pytorch")) tags.add("PyTorch");
+  if (/(^|\W)go(\W|$)/i.test(repo.language)) tags.add("Go");
+  if (includes("rust")) tags.add("Rust");
+  if (includes("c++") || includes("cuda")) tags.add("C++");
+  if (/(^|\W)java(\W|$)/i.test(repo.language)) tags.add("Java");
+  if (includes("kubernetes") || includes("kubeflow")) tags.add("Kubernetes");
+  if (
+    includes("ai") ||
+    includes("ml") ||
+    includes("llm") ||
+    includes("model") ||
+    includes("agent")
+  )
+    tags.add("AI / ML");
+  if (isYc) tags.add("YC");
+  if (includes("red hat") || includes("openshift") || includes("ansible"))
+    tags.add("Red Hat");
+
+  return tagOrder.filter((tag) => tags.has(tag));
+}
+
+const catalogRepos: CatalogRepo[] = [
+  ...repos.map((repo) => ({ ...repo, tags: catalogTags(repo, false) })),
+  ...ycRepos.map((repo) => ({ ...repo, tags: catalogTags(repo, true) })),
+];
+
 const sourceLinks = [
   {
     label: "Red Hat contributions list",
@@ -372,6 +918,94 @@ const sourceLinks = [
     href: "https://github.com/mlflow/mlflow",
   },
   {
+    label: "Red Hat OpenShift AI upstream overview",
+    href: "https://developers.redhat.com/products/red-hat-openshift-ai",
+  },
+  {
+    label: "Red Hat Kubeflow community work",
+    href: "https://www.redhat.com/en/blog/open-source-ai-red-hat-our-journey-kubeflow-community",
+  },
+  {
+    label: "KServe repository",
+    href: "https://github.com/kserve/kserve",
+  },
+  {
+    label: "Kubeflow organization",
+    href: "https://github.com/kubeflow",
+  },
+  {
+    label: "Kubeflow Pipelines repository",
+    href: "https://github.com/kubeflow/pipelines",
+  },
+  {
+    label: "Kubeflow Trainer repository",
+    href: "https://github.com/kubeflow/trainer",
+  },
+  {
+    label: "Open Data Hub organization",
+    href: "https://github.com/opendatahub-io",
+  },
+  {
+    label: "ODH Dashboard repository",
+    href: "https://github.com/opendatahub-io/odh-dashboard",
+  },
+  {
+    label: "ODH Model Registry repository",
+    href: "https://github.com/opendatahub-io/model-registry",
+  },
+  {
+    label: "Hugging Face Transformers repository",
+    href: "https://github.com/huggingface/transformers",
+  },
+  {
+    label: "Hugging Face Accelerate repository",
+    href: "https://github.com/huggingface/accelerate",
+  },
+  {
+    label: "vLLM repository",
+    href: "https://github.com/vllm-project/vllm",
+  },
+  {
+    label: "Ray repository",
+    href: "https://github.com/ray-project/ray",
+  },
+  {
+    label: "PyTorch repository",
+    href: "https://github.com/pytorch/pytorch",
+  },
+  {
+    label: "Lightning repository",
+    href: "https://github.com/Lightning-AI/pytorch-lightning",
+  },
+  {
+    label: "BentoML repository",
+    href: "https://github.com/bentoml/BentoML",
+  },
+  {
+    label: "OpenShift Console repository",
+    href: "https://github.com/openshift/console",
+  },
+  {
+    label: "Cockpit repository",
+    href: "https://github.com/cockpit-project/cockpit",
+  },
+  {
+    label: "Konveyor organization",
+    href: "https://github.com/konveyor",
+  },
+  {
+    label: "Podman repository",
+    href: "https://github.com/containers/podman",
+  },
+  {
+    label: "Skopeo repository",
+    href: "https://github.com/containers/skopeo",
+  },
+  {
+    label: "KubeVirt repository",
+    href: "https://github.com/kubevirt/kubevirt",
+  },
+  {
     label: "Appsmith repository",
     href: "https://github.com/appsmithorg/appsmith",
   },
@@ -412,10 +1046,32 @@ const sourceLinks = [
 const defaultWatched = [
   "ansible/django-ansible-base",
   "getsentry/sentry",
-  "zulip/zulip",
-  "saleor/saleor",
+  "huggingface/transformers",
+  "kserve/kserve",
 ];
 const pollOptions = [30_000, 60_000, 120_000, 300_000];
+
+function readStoredToken() {
+  return window.localStorage.getItem("github-token") ?? "";
+}
+
+function readStoredWatched() {
+  const savedWatched = window.localStorage.getItem("watched-repos");
+  if (!savedWatched) return defaultWatched;
+  try {
+    const parsed = JSON.parse(savedWatched);
+    return Array.isArray(parsed) && parsed.every((item) => typeof item === "string")
+      ? parsed
+      : defaultWatched;
+  } catch {
+    return defaultWatched;
+  }
+}
+
+function readStoredPollMs() {
+  const savedPoll = Number(window.localStorage.getItem("poll-ms"));
+  return pollOptions.includes(savedPoll) ? savedPoll : 60_000;
+}
 
 function formatAge(value: string) {
   const diff = Date.now() - new Date(value).getTime();
@@ -448,27 +1104,33 @@ export default function Home() {
   const [error, setError] = useState("");
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
   const [notifications, setNotifications] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
+  const [query, setQuery] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showWatchedOnly, setShowWatchedOnly] = useState(false);
   const knownIssueIds = useRef<Set<number>>(new Set());
   const initialLoadComplete = useRef(false);
 
   useEffect(() => {
-    const savedToken = window.localStorage.getItem("github-token") ?? "";
-    const savedWatched = window.localStorage.getItem("watched-repos");
-    const savedPoll = window.localStorage.getItem("poll-ms");
-    setToken(savedToken);
-    if (savedWatched) setWatched(JSON.parse(savedWatched));
-    if (savedPoll) setPollMs(Number(savedPoll));
+    // Hydrate device-local preferences after the client mounts.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setWatched(readStoredWatched());
+    setPollMs(readStoredPollMs());
+    setToken(readStoredToken());
+    setStorageReady(true);
   }, []);
 
   useEffect(() => {
+    if (!storageReady) return;
     window.localStorage.setItem("watched-repos", JSON.stringify(watched));
     window.localStorage.setItem("poll-ms", String(pollMs));
-  }, [watched, pollMs]);
+  }, [watched, pollMs, storageReady]);
 
   useEffect(() => {
+    if (!storageReady) return;
     if (token) window.localStorage.setItem("github-token", token);
     else window.localStorage.removeItem("github-token");
-  }, [token]);
+  }, [token, storageReady]);
 
   async function fetchIssues(silent = false) {
     if (!watched.length) return;
@@ -528,11 +1190,14 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (!storageReady) return;
+    // The watcher intentionally performs its first refresh when preferences are ready.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchIssues();
     const id = window.setInterval(() => fetchIssues(true), pollMs);
     return () => window.clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watched.join(","), pollMs, token]);
+  }, [watched.join(","), pollMs, token, storageReady]);
 
   const allIssues = useMemo(
     () =>
@@ -546,6 +1211,37 @@ export default function Home() {
         ),
     [issues],
   );
+
+  const tagCounts = useMemo(
+    () =>
+      Object.fromEntries(
+        tagOrder.map((tag) => [
+          tag,
+          catalogRepos.filter((repo) => repo.tags.includes(tag)).length,
+        ]),
+      ),
+    [],
+  );
+
+  const filteredRepos = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return catalogRepos.filter((repo) => {
+      if (showWatchedOnly && !watched.includes(repo.fullName)) return false;
+      if (!selectedTags.every((tag) => repo.tags.includes(tag))) return false;
+      if (!normalizedQuery) return true;
+      return [
+        repo.fullName,
+        repo.company,
+        repo.domain,
+        repo.language,
+        repo.fit,
+        ...repo.tags,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery);
+    });
+  }, [query, selectedTags, showWatchedOnly, watched]);
 
   async function enableNotifications() {
     if (!("Notification" in window)) return;
@@ -561,6 +1257,14 @@ export default function Home() {
     );
   }
 
+  function toggleTag(tag: string) {
+    setSelectedTags((current) =>
+      current.includes(tag)
+        ? current.filter((item) => item !== tag)
+        : [...current, tag],
+    );
+  }
+
   const rateLimitWarning =
     !token.trim() && watched.length > 2
       ? "You are watching more than two repos without a token. GitHub's anonymous rate limit will bite you."
@@ -572,51 +1276,114 @@ export default function Home() {
         <header className="grid gap-6 rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-950 via-[#10213b] to-[#0e2a34] p-6 shadow-2xl shadow-black/30 lg:grid-cols-[1.2fr_0.8fr] lg:p-10">
           <div>
             <p className="mb-3 w-fit rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-cyan-200">
-              Open-source contribution radar
+              Repo Radar · discover, filter, watch
             </p>
             <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-6xl">
-              Pick one serious repo. Build a one-year contribution record.
+              Find an open-source repo that fits your stack.
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 sm:text-lg">
-              This dashboard shortlists active company-adjacent repositories and
-              watches newly opened GitHub issues. The hard truth: no credible
-              company hires purely because your GitHub graph is green. They hire
-              when your contributions prove subsystem ownership, review quality,
-              and persistence.
+              Browse a curated catalog by language, framework, ecosystem, or
+              accelerator. Combine tags like Python + YC, save the repositories
+              you care about, and monitor their newest GitHub issues in one place.
             </p>
           </div>
           <div className="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-5 text-amber-50">
-            <h2 className="text-lg font-semibold">Recommendation</h2>
-            <p className="mt-3 text-sm leading-6 text-amber-100/90">
-              Given Python, Django, and some React, your best first targets are{" "}
-              <a
-                className="font-semibold underline decoration-amber-200/60 underline-offset-4"
-                href="https://github.com/zulip/zulip"
-                target="_blank"
-              >
-                zulip/zulip
-              </a>{" "}
-              for contributor onboarding,{" "}
-              <a
-                className="font-semibold underline decoration-amber-200/60 underline-offset-4"
-                href="https://github.com/getsentry/sentry"
-                target="_blank"
-              >
-                getsentry/sentry
-              </a>{" "}
-              for high hiring signal, or{" "}
-              <a
-                className="font-semibold underline decoration-amber-200/60 underline-offset-4"
-                href="https://github.com/ansible/django-ansible-base"
-                target="_blank"
-              >
-                ansible/django-ansible-base
-              </a>{" "}
-              if you specifically want Red Hat relevance. Kubernetes/Cilium are
-              famous, but they are the wrong default for your current stack.
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200">
+              How it works
             </p>
+            <h2 className="mt-2 text-2xl font-semibold">Build a focused watchlist</h2>
+            <p className="mt-3 text-sm leading-6 text-amber-100/90">
+              Select one or more tags to narrow the catalog. Watching a repo adds
+              it to your local list and activates live issue polling. Your choices
+              stay in this browser; no account is required.
+            </p>
+            <div className="mt-5 grid grid-cols-3 gap-3 text-center text-sm">
+              <div className="rounded-2xl bg-slate-950/25 p-3">
+                <strong className="block text-xl text-white">{catalogRepos.length}</strong>
+                repos
+              </div>
+              <div className="rounded-2xl bg-slate-950/25 p-3">
+                <strong className="block text-xl text-white">{tagOrder.length}</strong>
+                tags
+              </div>
+              <div className="rounded-2xl bg-slate-950/25 p-3">
+                <strong className="block text-xl text-white">{watched.length}</strong>
+                watched
+              </div>
+            </div>
           </div>
         </header>
+
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 lg:p-7">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+                Explore the catalog
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">
+                Filter by stack and ecosystem
+              </h2>
+              <p className="mt-2 text-sm text-slate-400">
+                Multiple tags use AND logic. Python + YC shows repositories that match both.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  showWatchedOnly
+                    ? "bg-cyan-300 text-slate-950"
+                    : "border border-white/10 text-slate-300 hover:border-cyan-300/50"
+                }`}
+                onClick={() => setShowWatchedOnly((value) => !value)}
+              >
+                Watched only · {watched.length}
+              </button>
+              {(selectedTags.length > 0 || query || showWatchedOnly) && (
+                <button
+                  className="rounded-full border border-white/10 px-4 py-2 text-sm text-slate-300 hover:border-rose-300/50 hover:text-rose-100"
+                  onClick={() => {
+                    setSelectedTags([]);
+                    setQuery("");
+                    setShowWatchedOnly(false);
+                  }}
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+          </div>
+
+          <label className="mt-6 block">
+            <span className="sr-only">Search repositories</span>
+            <input
+              className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-5 py-4 text-white outline-none placeholder:text-slate-600 focus:border-cyan-300"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search repos, companies, domains, or technologies..."
+            />
+          </label>
+
+          <div className="mt-4 flex flex-wrap gap-2" aria-label="Repository tags">
+            {tagOrder.map((tag) => {
+              const active = selectedTags.includes(tag);
+              return (
+                <button
+                  aria-pressed={active}
+                  className={`rounded-full border px-3 py-2 text-sm transition ${
+                    active
+                      ? "border-cyan-200 bg-cyan-300 text-slate-950"
+                      : "border-white/10 bg-slate-950/50 text-slate-300 hover:border-cyan-300/50 hover:text-white"
+                  }`}
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                >
+                  {tag} <span className={active ? "text-slate-700" : "text-slate-500"}>{tagCounts[tag]}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
         <section className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
@@ -660,8 +1427,13 @@ export default function Home() {
                   type="password"
                   value={token}
                   onChange={(event) => setToken(event.target.value)}
-                  placeholder="Higher rate limit; stored only in this browser"
+                  placeholder="Saved locally after first paste"
                 />
+                <span className="mt-2 block text-xs leading-5 text-slate-500">
+                  Saved in this browser&apos;s localStorage and reused on
+                  reload before the first API call. Do not use this on a shared
+                  machine.
+                </span>
               </label>
 
               <button
@@ -741,8 +1513,30 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {repos.map((repo) => {
+        <section>
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                Repository catalog
+              </p>
+              <h2 className="mt-1 text-2xl font-semibold text-white">
+                {filteredRepos.length} {filteredRepos.length === 1 ? "match" : "matches"}
+              </h2>
+            </div>
+            {selectedTags.length > 0 && (
+              <p className="text-sm text-slate-400">
+                Matching every tag: <span className="text-cyan-200">{selectedTags.join(" + ")}</span>
+              </p>
+            )}
+          </div>
+          {filteredRepos.length === 0 && (
+            <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center">
+              <h3 className="text-lg font-semibold text-white">No repositories match this combination.</h3>
+              <p className="mt-2 text-sm text-slate-400">Remove one tag or clear the search to widen the catalog.</p>
+            </div>
+          )}
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {filteredRepos.map((repo) => {
             const active = watched.includes(repo.fullName);
             return (
               <article
@@ -790,6 +1584,17 @@ export default function Home() {
                 </p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
+                  {repo.tags.map((tag) => (
+                    <button
+                      className="rounded-full bg-cyan-300/10 px-2 py-1 text-[11px] font-medium text-cyan-100 hover:bg-cyan-300/20"
+                      key={tag}
+                      onClick={() => {
+                        if (!selectedTags.includes(tag)) toggleTag(tag);
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  ))}
                   {repo.labels.map((label) => (
                     <span
                       className="rounded-full bg-slate-900 px-2 py-1 text-[11px] text-slate-300"
@@ -813,7 +1618,115 @@ export default function Home() {
               </article>
             );
           })}
+          </div>
         </section>
+
+        {false && <section className="rounded-[2rem] border border-violet-300/20 bg-violet-300/[0.06] p-5 lg:p-7">
+          <div className="mb-5 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+            <div>
+              <p className="mb-2 w-fit rounded-full border border-violet-300/25 bg-violet-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-violet-200">
+                YC open-source window
+              </p>
+              <h2 className="text-2xl font-semibold tracking-tight text-white">
+                YC 2024–2026 repos where contributor history can matter
+              </h2>
+              <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-300">
+                These are recent YC open-source companies from the YC OSS list,
+                filtered for AI, Python, devtools, auth, security, and infra.
+                This is a separate watch pane because early-stage startups may
+                notice useful contributors faster than mature projects.
+              </p>
+            </div>
+            <a
+              className="rounded-2xl border border-violet-300/30 px-4 py-3 text-sm font-semibold text-violet-100 transition hover:border-violet-200 hover:bg-violet-300/10"
+              href="https://github.com/yc-oss/open-source-companies"
+              target="_blank"
+            >
+              Source: yc-oss list
+            </a>
+          </div>
+
+          <div className="mb-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm leading-6 text-amber-100">
+            Hiring signal is not automatic. Founder visibility is higher in YC
+            repos, but only if your contributions are useful: broken
+            integration fixes, clear bug reports, reproducible tests, docs that
+            reduce support load, or reliability work.
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {ycRepos.map((repo) => {
+              const active = watched.includes(repo.fullName);
+              return (
+                <article
+                  key={repo.fullName}
+                  className="flex flex-col rounded-3xl border border-violet-200/15 bg-slate-950/70 p-5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <a
+                        className="text-lg font-semibold text-white hover:text-violet-200"
+                        href={`https://github.com/${repo.fullName}`}
+                        target="_blank"
+                      >
+                        {repo.fullName}
+                      </a>
+                      <p className="mt-1 text-sm text-slate-400">
+                        {repo.company}
+                      </p>
+                    </div>
+                    <span className={`signal ${signalClass(repo.signal)}`}>
+                      {repo.signal}
+                    </span>
+                  </div>
+
+                  <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <dt className="text-slate-500">Domain</dt>
+                      <dd className="text-slate-200">{repo.domain}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-500">Ramp</dt>
+                      <dd className="text-slate-200">{repo.difficulty}</dd>
+                    </div>
+                    <div className="col-span-2">
+                      <dt className="text-slate-500">Stack</dt>
+                      <dd className="text-slate-200">{repo.language}</dd>
+                    </div>
+                  </dl>
+
+                  <p className="mt-4 text-sm leading-6 text-slate-300">
+                    {repo.fit}
+                  </p>
+                  <p className="mt-3 rounded-2xl border border-rose-300/15 bg-rose-300/10 p-3 text-sm leading-6 text-rose-100/90">
+                    {repo.caution}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {repo.labels.map((label) => (
+                      <span
+                        className="rounded-full bg-slate-900 px-2 py-1 text-[11px] text-slate-300"
+                        key={label}
+                      >
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+
+                  <button
+                    className={`mt-auto rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                      active
+                        ? "bg-violet-300 text-slate-950 hover:bg-violet-200"
+                        : "border border-white/10 text-slate-200 hover:border-violet-300/60"
+                    }`}
+                    onClick={() => toggleRepo(repo.fullName)}
+                  >
+                    {active ? "Watching" : "Watch YC issues"}
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        </section>}
 
         <section className="grid gap-4 lg:grid-cols-3">
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 lg:col-span-2">
