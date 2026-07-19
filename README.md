@@ -1,98 +1,109 @@
-# vinext-starter
+# RepoForYou
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+RepoForYou helps developers discover active open-source repositories that match
+their stack, build a personal watchlist, and monitor new GitHub issues without
+jumping between dozens of repository pages.
 
-## Prerequisites
+## What it does
 
-- Node.js `>=22.13.0`
+- Browse a curated repository catalog by language, framework, and ecosystem.
+- Combine tags with AND filtering, such as `Python + YC`.
+- Search beyond the curated catalog using GitHub's public repository search.
+- Watch any listed repository and review its newest open issues.
+- Save watched repositories and settings in the current browser.
+- Paginate curated and live GitHub search results.
+- Follow a practical contribution guide before starting work.
+- Learn how to create a minimal fine-grained GitHub token.
 
-## Quick Start
+## GitHub token
+
+A GitHub token is optional. Public repository discovery works without one, but
+authenticated API requests receive higher general rate limits.
+
+Use a fine-grained, expiring token and do not grant additional permissions for
+public repository discovery. RepoForYou currently stores the token unencrypted
+in the browser's `localStorage`, so do not use this feature on a shared device.
+Never commit, publish, record, or share the token. Revoke it immediately if it
+is exposed.
+
+## Tech stack
+
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Next.js-compatible App Router
+- vinext and Vite
+- Cloudflare Workers runtime
+- GitHub REST API
+
+## Local development
+
+### Requirements
+
+- Node.js 22.13 or newer
+- npm
+
+### Setup
 
 ```bash
+git clone https://github.com/ZoroZoro95/RepoForYou.git
+cd RepoForYou
 npm install
 npm run dev
-npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+Open the local URL printed in the terminal.
 
-## Included Shape
+## Commands
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+npm run dev      # Start the local development server
+npm run lint     # Run ESLint
+npm test         # Build the app and run rendered HTML tests
+npm run build    # Create a production build
+npm run start    # Run the production build locally
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+## How repository discovery works
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+The curated catalog is stored in the application and provides opinionated
+stack and ecosystem tags. Selecting multiple tags requires every selected tag
+to match.
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+The **All GitHub** search sends the query to GitHub's repository search API.
+Those results are live rather than hardcoded and can be added to the same local
+watchlist.
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+The issue watcher polls GitHub from the browser. It is not a webhook-backed
+notification system, so updates are periodic rather than instant.
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+## Data and privacy
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+RepoForYou does not currently require an account or run its own user database.
+Watched repositories, the optional GitHub token, and related preferences are
+stored in the current browser's `localStorage`. Clearing site data removes
+them.
 
-## Useful Commands
+## Contributing
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+Before opening a pull request:
 
-## Learn More
+1. Confirm the problem still exists on the current default branch.
+2. Read the repository instructions and existing issue discussion.
+3. Keep the proposed change narrowly scoped.
+4. Add or update tests for behavior changes.
+5. Run `npm run lint` and `npm test`.
+6. Explain the problem, root cause, solution, and verification in the pull request.
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+## Current limitations
+
+- GitHub API rate limits still apply, including stricter search limits.
+- Browser polling is not an instant notification system.
+- Browser storage does not synchronize across devices.
+- The optional token is stored unencrypted in `localStorage`.
+- Repository recommendations are not yet generated from a user profile.
+
+## License
+
+No license has been added yet. Until one is added, the source is publicly
+visible but should not be treated as open-source licensed code.
