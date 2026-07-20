@@ -1617,6 +1617,74 @@ export default function Home() {
           )}
         </section>
 
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 lg:p-7">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-200">
+                My watchlist
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">
+                Watched repositories
+              </h2>
+              <p className="mt-2 text-sm text-slate-400">
+                Every repository you watch appears here, including repositories added through live GitHub search.
+              </p>
+            </div>
+            <span className="rounded-full border border-violet-300/20 bg-violet-300/10 px-4 py-2 text-sm font-semibold text-violet-100">
+              {watched.length} {watched.length === 1 ? "repository" : "repositories"}
+            </span>
+          </div>
+
+          {watched.length === 0 ? (
+            <div className="mt-6 rounded-3xl border border-dashed border-white/15 bg-slate-950/40 p-8 text-center">
+              <p className="font-semibold text-slate-200">Your watchlist is empty.</p>
+              <p className="mt-2 text-sm text-slate-500">
+                Select Watch issues on a curated or GitHub search result to add it here.
+              </p>
+            </div>
+          ) : (
+            <ul className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {watched.map((repoName) => {
+                const catalogRepo = catalogRepos.find((repo) => repo.fullName === repoName);
+                const issueCount = issues[repoName]?.length;
+
+                return (
+                  <li
+                    className="flex min-w-0 items-center justify-between gap-4 rounded-3xl border border-white/10 bg-slate-950/70 p-4"
+                    key={repoName}
+                  >
+                    <div className="min-w-0">
+                      <a
+                        className="block truncate font-semibold text-white transition hover:text-cyan-200"
+                        href={`https://github.com/${repoName}`}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        {repoName} ↗
+                      </a>
+                      <p className="mt-1 truncate text-xs text-slate-500">
+                        {catalogRepo
+                          ? `${catalogRepo.language} · ${catalogRepo.signal} fit`
+                          : "Added from GitHub search"}
+                        {typeof issueCount === "number"
+                          ? ` · ${issueCount} open ${issueCount === 1 ? "issue" : "issues"} loaded`
+                          : ""}
+                      </p>
+                    </div>
+                    <button
+                      aria-label={`Unwatch ${repoName}`}
+                      className="shrink-0 rounded-xl border border-rose-300/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:border-rose-300/60 hover:bg-rose-300/10"
+                      onClick={() => toggleRepo(repoName)}
+                    >
+                      Unwatch
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
         <section className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
