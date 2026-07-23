@@ -59,7 +59,10 @@ test("renders stack and ecosystem filters with watch controls", async () => {
 
   assert.match(html, /aria-pressed="false"/i);
   assert.match(html, /Watch issues/i);
+  assert.match(html, /Check repo health/i);
   assert.match(html, /Live issue watcher/i);
+  assert.match(html, /GitHub API budget/i);
+  assert.match(html, /Remaining quota appears after the first GitHub request/i);
   assert.doesNotMatch(html, />good first issue</i);
   assert.doesNotMatch(html, /Your site is taking shape|Codex is building/i);
 });

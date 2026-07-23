@@ -40,6 +40,38 @@ type GithubRepoResult = {
   topics?: string[];
 };
 
+type GithubRepoDetails = GithubRepoResult & {
+  archived: boolean;
+  disabled: boolean;
+};
+
+type GithubPullRequest = {
+  merged_at: string | null;
+};
+
+type HealthFactor = {
+  label: string;
+  score: number;
+  maximum: number;
+  detail: string;
+};
+
+type HealthReport = {
+  score: number;
+  grade: "Excellent" | "Healthy" | "Mixed" | "Weak" | "Inactive";
+  checkedAt: string;
+  factors: HealthFactor[];
+};
+
+type ApiBudget = {
+  limit: number;
+  remaining: number;
+  resetAt: string;
+  resource: string;
+};
+
+const healthCacheMs = 15 * 60_000;
+
 const repos: Repo[] = [
   {
     fullName: "makeplane/plane",
@@ -1146,6 +1178,161 @@ function dedupeIssues(items: GithubIssue[]) {
   });
 }
 
+function readApiBudget(response: Response): ApiBudget | null {
+  const limit = Number(response.headers.get("x-ratelimit-limit"));
+  const remaining = Number(response.headers.get("x-ratelimit-remaining"));
+  const reset = Number(response.headers.get("x-ratelimit-reset"));
+  if (!Number.isFinite(limit) || !Number.isFinite(remaining) || !Number.isFinite(reset)) return null;
+
+  return {
+    limit,
+    remaining,
+    resetAt: new Date(reset * 1_000).toISOString(),
+    resource: response.headers.get("x-ratelimit-resource") || "core",
+  };
+}
+
+function githubResponseError(response: Response) {
+  const retryAfter = Number(response.headers.get("retry-after"));
+  const reset = Number(response.headers.get("x-ratelimit-reset"));
+  const retryAt = Number.isFinite(retryAfter) && retryAfter > 0
+    ? new Date(Date.now() + retryAfter * 1_000)
+    : Number.isFinite(reset) && reset > 0
+      ? new Date(reset * 1_000)
+      : null;
+  const retryMessage = retryAt ? ` Try again after ${retryAt.toLocaleTimeString()}.` : "";
+  return `GitHub returned ${response.status} ${response.statusText}.${retryMessage}`;
+}
+
+function buildHealthReport(repo: GithubRepoDetails, pulls: GithubPullRequest[]): HealthReport {
+  const now = Date.now();
+  const daysSincePush = Math.max(0, Math.floor((now - new Date(repo.pushed_at).getTime()) / 86_400_000));
+  const freshnessScore =
+    daysSincePush <= 7 ? 35 : daysSincePush <= 30 ? 30 : daysSincePush <= 90 ? 22 : daysSincePush <= 180 ? 14 : daysSincePush <= 365 ? 7 : 0;
+
+  const mergedPulls = pulls.filter((pull) => pull.merged_at);
+  const recentMergedPulls = mergedPulls.filter(
+    (pull) => pull.merged_at && now - new Date(pull.merged_at).getTime() <= 90 * 86_400_000,
+  );
+  const pullScore = Math.min(20, mergedPulls.length * 2) + Math.min(10, recentMergedPulls.length * 2);
+
+  const issuePressure = repo.open_issues_count / Math.max(repo.forks_count, 1);
+  const issueScore = issuePressure <= 0.25 ? 15 : issuePressure <= 0.75 ? 11 : issuePressure <= 2 ? 6 : 2;
+  const communityScore =
+    repo.forks_count >= 1_000 ? 20 : repo.forks_count >= 250 ? 16 : repo.forks_count >= 50 ? 12 : repo.forks_count >= 10 ? 8 : 4;
+
+  const rawScore = freshnessScore + pullScore + issueScore + communityScore;
+  const score = repo.archived || repo.disabled ? Math.min(rawScore, 20) : rawScore;
+  const grade = repo.archived || repo.disabled
+    ? "Inactive"
+    : score >= 80
+      ? "Excellent"
+      : score >= 65
+        ? "Healthy"
+        : score >= 45
+          ? "Mixed"
+          : "Weak";
+
+  return {
+    score,
+    grade,
+    checkedAt: new Date().toISOString(),
+    factors: [
+      {
+        label: "Recent development",
+        score: freshnessScore,
+        maximum: 35,
+        detail: `Last push ${daysSincePush === 0 ? "today" : `${daysSincePush}d ago`}`,
+      },
+      {
+        label: "Merged PR momentum",
+        score: pullScore,
+        maximum: 30,
+        detail: `${mergedPulls.length} of the last ${pulls.length} closed PRs merged; ${recentMergedPulls.length} in 90d`,
+      },
+      {
+        label: "Issue-load pressure",
+        score: issueScore,
+        maximum: 15,
+        detail: `${repo.open_issues_count.toLocaleString()} open issues / ${repo.forks_count.toLocaleString()} forks`,
+      },
+      {
+        label: "Community activity",
+        score: communityScore,
+        maximum: 20,
+        detail: `${repo.stargazers_count.toLocaleString()} stars / ${repo.forks_count.toLocaleString()} forks`,
+      },
+    ],
+  };
+}
+
+function RepoHealthPanel({
+  repoName,
+  report,
+  loading,
+  error,
+  onCheck,
+}: {
+  repoName: string;
+  report?: HealthReport;
+  loading: boolean;
+  error?: string;
+  onCheck: () => void;
+}) {
+  return (
+    <div className="mt-3">
+      <button
+        className="w-full rounded-2xl border border-violet-300/20 bg-violet-300/10 px-4 py-3 text-sm font-semibold text-violet-100 transition hover:border-violet-300/60 disabled:cursor-wait disabled:opacity-60"
+        disabled={loading}
+        onClick={onCheck}
+      >
+        {loading ? "Checking GitHub health..." : report ? "Refresh health score" : "Check repo health"}
+      </button>
+      {error && (
+        <p className="mt-2 rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-xs leading-5 text-rose-100">
+          {error}
+        </p>
+      )}
+      {report && (
+        <div className="mt-3 rounded-2xl border border-violet-300/20 bg-slate-950/80 p-4" aria-label={`${repoName} health score`}>
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-violet-200">Directional health score</p>
+              <p className="mt-1 text-sm font-semibold text-white">{report.grade}</p>
+            </div>
+            <p className="text-3xl font-semibold text-white">
+              {report.score}<span className="text-sm text-slate-500">/100</span>
+            </p>
+          </div>
+          <dl className="mt-4 space-y-3">
+            {report.factors.map((factor) => (
+              <div key={factor.label}>
+                <div className="flex justify-between gap-3 text-xs">
+                  <dt className="text-slate-300">{factor.label}</dt>
+                  <dd className="font-mono text-violet-200">{factor.score}/{factor.maximum}</dd>
+                </div>
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-violet-400 to-cyan-300"
+                    style={{ width: `${(factor.score / factor.maximum) * 100}%` }}
+                  />
+                </div>
+                <p className="mt-1 text-[11px] leading-4 text-slate-500">{factor.detail}</p>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-3 border-t border-white/10 pt-3 text-[11px] leading-4 text-slate-500">
+            This is a screening signal, not a maintainer-quality verdict. GitHub&apos;s open issue count can include pull requests.
+          </p>
+          <p className="mt-2 text-[11px] text-slate-600">
+            Checked {new Date(report.checkedAt).toLocaleTimeString()} · cached for 15 minutes
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const [watched, setWatched] = useState<string[]>(defaultWatched);
   const [pollMs, setPollMs] = useState(60_000);
@@ -1167,12 +1354,15 @@ export default function Home() {
   const [githubPage, setGithubPage] = useState(1);
   const [githubLoading, setGithubLoading] = useState(false);
   const [githubError, setGithubError] = useState("");
+  const [healthReports, setHealthReports] = useState<Record<string, HealthReport>>({});
+  const [healthLoading, setHealthLoading] = useState<string[]>([]);
+  const [healthErrors, setHealthErrors] = useState<Record<string, string>>({});
+  const [apiBudgets, setApiBudgets] = useState<Record<string, ApiBudget>>({});
   const knownIssueIds = useRef<Set<number>>(new Set());
   const initialLoadComplete = useRef(false);
 
   useEffect(() => {
     // Hydrate device-local preferences after the client mounts.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setWatched(readStoredWatched());
     setPollMs(readStoredPollMs());
     setToken(readStoredToken());
@@ -1191,6 +1381,12 @@ export default function Home() {
     else window.localStorage.removeItem("github-token");
   }, [token, storageReady]);
 
+  function recordApiBudget(response: Response) {
+    const budget = readApiBudget(response);
+    if (!budget) return;
+    setApiBudgets((current) => ({ ...current, [budget.resource]: budget }));
+  }
+
   async function fetchIssues(silent = false) {
     if (!watched.length) {
       setIssues({});
@@ -1205,21 +1401,26 @@ export default function Home() {
       };
       if (token.trim()) headers.Authorization = `Bearer ${token.trim()}`;
 
-      const responses = await Promise.all(
+      const responses = await Promise.allSettled(
         watched.map(async (repo) => {
           const url = `https://api.github.com/repos/${repo}/issues?state=open&sort=created&direction=desc&per_page=12`;
           const response = await fetch(url, { headers });
+          recordApiBudget(response);
           if (!response.ok) {
-            throw new Error(
-              `${repo}: GitHub returned ${response.status} ${response.statusText}`,
-            );
+            throw new Error(`${repo}: ${githubResponseError(response)}`);
           }
           const data = (await response.json()) as GithubIssue[];
           return [repo, dedupeIssues(data)] as const;
         }),
       );
 
-      const nextIssues = Object.fromEntries(responses);
+      const successfulResponses = responses
+        .filter((response): response is PromiseFulfilledResult<readonly [string, GithubIssue[]]> => response.status === "fulfilled")
+        .map((response) => response.value);
+      const failedResponses = responses.filter(
+        (response): response is PromiseRejectedResult => response.status === "rejected",
+      );
+      const nextIssues = Object.fromEntries(successfulResponses);
       const newIssues: GithubIssue[] = [];
       for (const repoIssues of Object.values(nextIssues)) {
         for (const issue of repoIssues) {
@@ -1228,8 +1429,19 @@ export default function Home() {
       }
 
       for (const issue of newIssues) knownIssueIds.current.add(issue.id);
-      setIssues(nextIssues);
-      setLastChecked(new Date());
+      if (successfulResponses.length) {
+        setIssues((current) => ({ ...current, ...nextIssues }));
+        setLastChecked(new Date());
+      }
+      if (failedResponses.length) {
+        const failureSummary = failedResponses
+          .slice(0, 3)
+          .map((response) => response.reason instanceof Error ? response.reason.message : "Unknown GitHub error")
+          .join(" ");
+        setError(
+          `Updated ${successfulResponses.length} of ${watched.length} repositories. ${failureSummary}`,
+        );
+      }
 
       if (
         notifications &&
@@ -1254,7 +1466,6 @@ export default function Home() {
   useEffect(() => {
     if (!storageReady) return;
     // The watcher intentionally performs its first refresh when preferences are ready.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchIssues();
     const id = window.setInterval(() => fetchIssues(true), pollMs);
     return () => window.clearInterval(id);
@@ -1342,8 +1553,9 @@ export default function Home() {
       const response = await fetch(`https://api.github.com/search/repositories?${params}`, {
         headers,
       });
+      recordApiBudget(response);
       if (!response.ok) {
-        throw new Error(`GitHub returned ${response.status} ${response.statusText}`);
+        throw new Error(githubResponseError(response));
       }
       const data = (await response.json()) as {
         total_count: number;
@@ -1363,6 +1575,43 @@ export default function Home() {
     if (!("Notification" in window)) return;
     const permission = await Notification.requestPermission();
     setNotifications(permission === "granted");
+  }
+
+  async function checkRepoHealth(repoName: string, force = false) {
+    const cachedReport = healthReports[repoName];
+    if (!force && cachedReport && Date.now() - new Date(cachedReport.checkedAt).getTime() < healthCacheMs) return;
+    setHealthLoading((current) => [...current, repoName]);
+    setHealthErrors((current) => ({ ...current, [repoName]: "" }));
+    try {
+      const headers: HeadersInit = {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      };
+      if (token.trim()) headers.Authorization = `Bearer ${token.trim()}`;
+      const repoPath = repoName.split("/").map(encodeURIComponent).join("/");
+      const [repoResponse, pullsResponse] = await Promise.all([
+        fetch(`https://api.github.com/repos/${repoPath}`, { headers }),
+        fetch(`https://api.github.com/repos/${repoPath}/pulls?state=closed&sort=updated&direction=desc&per_page=20`, {
+          headers,
+        }),
+      ]);
+      recordApiBudget(repoResponse);
+      recordApiBudget(pullsResponse);
+      if (!repoResponse.ok || !pullsResponse.ok) {
+        const failedResponse = !repoResponse.ok ? repoResponse : pullsResponse;
+        throw new Error(githubResponseError(failedResponse));
+      }
+      const repo = (await repoResponse.json()) as GithubRepoDetails;
+      const pulls = (await pullsResponse.json()) as GithubPullRequest[];
+      setHealthReports((current) => ({ ...current, [repoName]: buildHealthReport(repo, pulls) }));
+    } catch (err) {
+      setHealthErrors((current) => ({
+        ...current,
+        [repoName]: err instanceof Error ? err.message : "Repository health check failed",
+      }));
+    } finally {
+      setHealthLoading((current) => current.filter((name) => name !== repoName));
+    }
   }
 
   function toggleRepo(repo: string) {
@@ -1744,6 +1993,42 @@ export default function Home() {
                   ? "Browser notifications enabled"
                   : "Enable new issue notifications"}
               </button>
+
+              <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.06] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold text-cyan-50">GitHub API budget</h3>
+                  <span className="rounded-full bg-slate-950/60 px-2 py-1 text-[11px] text-cyan-100">
+                    {token.trim() ? "Authenticated" : "Anonymous"}
+                  </span>
+                </div>
+                {Object.keys(apiBudgets).length === 0 ? (
+                  <p className="mt-3 text-xs leading-5 text-slate-400">
+                    Remaining quota appears after the first GitHub request.
+                  </p>
+                ) : (
+                  <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {Object.values(apiBudgets).map((budget) => (
+                      <div className="rounded-xl bg-slate-950/60 p-3" key={budget.resource}>
+                        <dt className="text-[11px] uppercase tracking-[0.14em] text-slate-500">
+                          {budget.resource} requests
+                        </dt>
+                        <dd className="mt-1 text-lg font-semibold text-white">
+                          {budget.remaining.toLocaleString()}
+                          <span className="text-xs font-normal text-slate-500"> / {budget.limit.toLocaleString()}</span>
+                        </dd>
+                        <p className="mt-1 text-[11px] text-slate-500">
+                          Resets {new Date(budget.resetAt).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                <ul className="mt-3 space-y-1 text-[11px] leading-4 text-slate-500">
+                  <li>Issue refresh: about 1 core request per watched repository.</li>
+                  <li>Health check: 2 core requests, with results reused across matching cards.</li>
+                  <li>Repository search uses GitHub&apos;s separate search budget.</li>
+                </ul>
+              </div>
             </div>
 
             <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-sm text-slate-300">
@@ -1907,6 +2192,13 @@ export default function Home() {
                 >
                   {active ? "Watching" : "Watch issues"}
                 </button>
+                <RepoHealthPanel
+                  error={healthErrors[repo.fullName]}
+                  loading={healthLoading.includes(repo.fullName)}
+                  onCheck={() => checkRepoHealth(repo.fullName, Boolean(healthReports[repo.fullName]))}
+                  repoName={repo.fullName}
+                  report={healthReports[repo.fullName]}
+                />
               </article>
             );
           })}
@@ -2026,6 +2318,13 @@ export default function Home() {
                     >
                       {active ? "Watching" : "Watch issues"}
                     </button>
+                    <RepoHealthPanel
+                      error={healthErrors[repo.full_name]}
+                      loading={healthLoading.includes(repo.full_name)}
+                      onCheck={() => checkRepoHealth(repo.full_name, Boolean(healthReports[repo.full_name]))}
+                      repoName={repo.full_name}
+                      report={healthReports[repo.full_name]}
+                    />
                   </article>
                 );
               })}
