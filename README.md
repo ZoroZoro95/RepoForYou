@@ -10,6 +10,8 @@ jumping between dozens of repository pages.
 - Combine tags with AND filtering, such as `Python + YC`.
 - Search beyond the curated catalog using GitHub's public repository search.
 - Watch any listed repository and review its newest open issues.
+- Run an on-demand, explainable repository health check using live GitHub data.
+- See remaining GitHub API quota, reset timing, and request-cost guidance.
 - Save watched repositories and settings in the current browser.
 - Paginate curated and live GitHub search results.
 - Follow a practical contribution guide before starting work.
@@ -77,6 +79,17 @@ watchlist.
 The issue watcher polls GitHub from the browser. It is not a webhook-backed
 notification system, so updates are periodic rather than instant.
 
+Repository health checks are also performed in the browser and use current
+repository metadata plus the latest 20 closed pull requests. The score exposes
+its four components: recent development, merged-PR momentum, issue-load
+pressure, and community activity. It is a screening signal, not an assessment
+of maintainer quality or project governance.
+
+The API budget panel reads GitHub's response headers after each request and
+tracks core and search quotas separately. Issue polling keeps successful
+repository results when another watched repository fails, and rate-limit errors
+include GitHub's retry or reset time when available.
+
 ## Data and privacy
 
 RepoForYou does not currently require an account or run its own user database.
@@ -98,6 +111,7 @@ Before opening a pull request:
 ## Current limitations
 
 - GitHub API rate limits still apply, including stricter search limits.
+- Repository health scores are directional and depend on limited public GitHub data.
 - Browser polling is not an instant notification system.
 - Browser storage does not synchronize across devices.
 - The optional token is stored unencrypted in `localStorage`.

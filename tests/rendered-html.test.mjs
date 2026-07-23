@@ -34,6 +34,9 @@ test("server-renders the generalized repository catalog", async () => {
   assert.match(html, /Multiple tags use AND logic/i);
   assert.match(html, /Search curated repos, companies, or technologies/i);
   assert.match(html, /Watched only/i);
+  assert.match(html, /My watchlist/i);
+  assert.match(html, /Watched repositories/i);
+  assert.match(html, /Your watchlist is empty/i);
   assert.match(html, /Repository catalog/i);
   assert.match(html, /Contribution guide/i);
   assert.match(html, /GitHub token setup/i);
@@ -56,7 +59,10 @@ test("renders stack and ecosystem filters with watch controls", async () => {
 
   assert.match(html, /aria-pressed="false"/i);
   assert.match(html, /Watch issues/i);
+  assert.match(html, /Check repo health/i);
   assert.match(html, /Live issue watcher/i);
+  assert.match(html, /GitHub API budget/i);
+  assert.match(html, /Remaining quota appears after the first GitHub request/i);
   assert.doesNotMatch(html, />good first issue</i);
   assert.doesNotMatch(html, /Your site is taking shape|Codex is building/i);
 });
